@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6EFEB8BA-FB70-45E4-AA42-7D02D6B0E72D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>GETIMFISP</RootNamespace>
-    <AssemblyName>GETIMFISP</AssemblyName>
+    <ProjectGuid>{0CDB79B1-B57C-473F-BE47-989465098CA1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Object_Testing</RootNamespace>
+    <AssemblyName>Object Testing</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -31,9 +31,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="sfmlnet-audio-2">
@@ -61,14 +58,24 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FActor.cs" />
-    <Compile Include="FActorManager.cs" />
-    <Compile Include="FGame.cs" />
-    <Compile Include="FWindowInfo.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="Data\images\object1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\images\object2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\images\object3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\main.tmx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\tilesets\FFGTileset1.tsx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -87,6 +94,9 @@
     <Content Include="csfml-window-2.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Data\tileset1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="libsndfile-1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -99,6 +109,12 @@
     <Content Include="OpenTK.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GETIMFISP\GETIMFISP.csproj">
+      <Project>{6efeb8ba-fb70-45e4-aa42-7d02d6b0e72d}</Project>
+      <Name>GETIMFISP</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration ("")]
 [assembly: AssemblyCompany ("")]
 [assembly: AssemblyProduct ("GETIMFISP")]
-[assembly: AssemblyCopyright ("Copyright ©  2020")]
+[assembly: AssemblyCopyright ("Copyright ©  2019")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible (false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid ("0cd5df87-08c8-4ec9-93b9-27ab4867cb32")]
+[assembly: Guid ("6efeb8ba-fb70-45e4-aa42-7d02d6b0e72d")]
 
 // Version information for an assembly consists of the following four values:
 //
