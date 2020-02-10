@@ -61,9 +61,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\RectExtensions.cs" />
+    <Compile Include="Extensions\SpriteExtensions.cs" />
+    <Compile Include="Extensions\TimeExtensions.cs" />
+    <Compile Include="Extensions\TmxMapExtensions.cs" />
+    <Compile Include="Extensions\TmxTilesetExtenstions.cs" />
+    <Compile Include="Extensions\VectorExtensions.cs" />
+    <Compile Include="Extensions\XnaVectorExtensions.cs" />
     <Compile Include="FActor.cs" />
     <Compile Include="FActorManager.cs" />
+    <Compile Include="FAnimation.cs" />
     <Compile Include="FGame.cs" />
+    <Compile Include="FAnimatedSprite.cs" />
+    <Compile Include="FGameTime.cs" />
+    <Compile Include="FloatMath.cs" />
     <Compile Include="FWindowInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

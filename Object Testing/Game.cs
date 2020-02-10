@@ -11,14 +11,17 @@ using TiledSharp;
 
 namespace SFMLGame
 {
-	class Game
+	class MyGame
 	{
+		public static FGame game;
+
 		static void Main(string [] args)
 		{
 			// Make a new game from a Tiled file
-			FGame game = new FGame ("Data/main.tmx");
-			// Register Player Script
+			game = new FGame ("Data/main.tmx");
+			// Register Scripts
 			game.AddActorType<Player> ();
+			game.AddActorType<Controller> ();
 			// Set window info
 			game.windowInfo = FWindowInfo.SIMPLE_WINDOWED;
 			// Background Color
@@ -31,14 +34,24 @@ namespace SFMLGame
 
 	public class Player : FActor
 	{
-		public override void OnCreated(TmxObject obj)
+		public override void OnGraphicsReady()
 		{
-			Console.WriteLine ($"Player position: X {obj.X} Y {obj.Y}");
-
-			graphics = new Sprite (new Texture($"Data/images/object{obj.Properties["number"]}.png"));
-			graphics.Position = new Vector2f ((float) obj.X, (float) obj.Y);
+			graphics = new Sprite (new Texture($"Data/images/object{srcObject.Properties["number"]}.png"));
 
 			velocity = new Vector2f (20, 20);
+		}
+	}
+
+	public class Controller : FActor
+	{
+		public override void Update(Time delta)
+		{
+			base.Update (delta);
+
+			if (Game.Elapsed.AsSeconds() > 2)
+			{
+				Manager.RemoveAll<Player> ();
+			}
 		}
 	}
 }

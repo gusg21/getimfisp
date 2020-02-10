@@ -1,3 +1,4 @@
+using GETIMFISP.Extensions;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -22,6 +23,8 @@ namespace GETIMFISP
 		Dictionary<string, Type> ActorTypes;
 		// The actor manager
 		public FActorManager ActorManager { get; private set; }
+		// The GameTime struct to keep track of all time-related things
+		public FGameTime gameTime;
 
 		// RENDERING
 		// The window the game renders to.
@@ -39,7 +42,7 @@ namespace GETIMFISP
 		{
 			map = new TmxMap (startingMap);
 			ActorTypes = new Dictionary<string, Type> ();
-			ActorManager = new FActorManager ();
+			ActorManager = new FActorManager (this);
 		}
 
 		/// <summary>
@@ -72,28 +75,35 @@ namespace GETIMFISP
 				// Loop through objects in the group
 				foreach (TmxObject obj in objGroup.Objects)
 				{
-					Console.WriteLine ("  OBJECT: Name: [" + obj.Name + "] Type: [" + obj.Type + "]");
-					if (!ActorTypes.ContainsKey(obj.Type)) // Is the type registered?
+					Console.WriteLine ("  OBJECT: Name: [" + obj.Name + "] Type: [" + obj.Type + "] ObjType: [" + obj.ObjectType + "]");
+					if (obj.Type == "")
+					{
+						Console.WriteLine ("    W: No type provided.");
+					}
+
+					if (!ActorTypes.ContainsKey(obj.Type) && obj.Type != "") // Is the type registered?
 					{
 						Console.WriteLine ($"    E: Unknown type: {obj.Type}");
 						continue;
 					}
 
-					FActor actor;
-					try // Is the type vaild/creatable/castable?
-					{
+					FActor actor = new FActor();
+					actor.srcObject = obj;
+					
+					if (obj.Type != "")
 						actor = (FActor) Activator.CreateInstance (ActorTypes [obj.Type]);
-					}
-					catch (Exception e)
+
+					// Custom functionality based on source tiled type
+					switch (obj.ObjectType)
 					{
-						Console.WriteLine ($"    E: Couldn't convert {obj.Type} to FActor:\n    {e.Message}");
-						continue;
+						case TmxObjectType.Tile:
+							TmxTileset tileset = map.GetTilesetWithGid (obj.Tile.Gid);
+							actor.graphics.Texture = tileset.GetTileTex (obj.Tile.Gid);
+							break;
 					}
 
 					// Add it to the manager
 					ActorManager.Add (actor);
-
-					actor.OnCreated (obj);
 
 					Console.WriteLine ("    Loaded successfully!");
 				}
@@ -111,19 +121,20 @@ namespace GETIMFISP
 
 			RenderStates states = RenderStates.Default;
 
-			Clock clock = new Clock ();
-			Time delta = clock.Restart();
+			gameTime = new FGameTime ();
 
 			while (window.IsOpen)
 			{
 				window.DispatchEvents ();
 
-				ActorManager.Update (delta);
+				ActorManager.Update (gameTime);
 
 				window.Clear (backgroundColor);
 				ActorManager.Draw (window, states);
-
+				
 				window.Display ();
+
+				gameTime.Tick ();
 			}
 		}
 	}

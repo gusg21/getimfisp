@@ -5,7 +5,7 @@ using System.Text;
 using SFML.Graphics;
 using SFML.Window;
 using SFML.System;
-using Microsoft.Xna.Framework;
+//using Microsoft.Xna.Framework;
 
 namespace GETIMFISP.Extensions
 {
@@ -116,15 +116,15 @@ namespace GETIMFISP.Extensions
 			return new Vector2u ((uint) v.X, (uint) v.Y);
 		}
 
-		public static Vector2 ToXna(this Vector2f v)
-		{
-			return new Vector2 (v.X, v.Y);
-		}
+		//public static Vector2 ToXna(this Vector2f v)
+		//{
+		//	return new Vector2 (v.X, v.Y);
+		//}
 
-		public static Vector2 ToXna(this Vector2u v)
-		{
-			return new Vector2 (v.X, v.Y);
-		}
+		//public static Vector2 ToXna(this Vector2u v)
+		//{
+		//	return new Vector2 (v.X, v.Y);
+		//}
 
 		/// <summary>
 		/// Calculates square with given vector in the center and size of margin*2

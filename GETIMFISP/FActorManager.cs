@@ -9,12 +9,17 @@ namespace GETIMFISP
 	/// </summary>
 	public class FActorManager
 	{
+		public FGame Game;
+
 		Dictionary<int, FActor> actors; // internal actor holder (id -> actor)
+		List<int> removalQueue; // the actors to remove
 		int nextId; // the next id to be given out
 
-		public FActorManager()
+		public FActorManager(FGame game)
 		{
+			Game = game;
 			actors = new Dictionary<int, FActor> ();
+			removalQueue = new List<int> ();
 		}
 
 		/// <summary>
@@ -26,16 +31,95 @@ namespace GETIMFISP
 			int id = nextId++;
 			actors.Add (id, actor);
 			actor.ID = id;
+			actor.Manager = this;
 		}
 
-		public void Update(Time delta)
+		/// <summary>
+		/// Actually remove an actor from the manager. Not public because that would break loops.
+		/// </summary>
+		/// <param name="id">The id of the actor to be removed</param>
+		/// <returns>Success?</returns>
+		bool _Remove(int id)
+		{
+			if (actors.ContainsKey(id)) // Is that an actual ID we have?
+			{
+				actors [id].Manager = null;
+				actors.Remove (id);
+				return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Remove all ids in the removal queue.
+		/// </summary>
+		void RemoveQueued()
+		{
+			foreach (int id in removalQueue)
+			{
+				_Remove (id);
+			}
+
+			removalQueue.Clear ();
+		}
+
+		/// <summary>
+		/// Queue an actor to be removed by its id
+		/// </summary>
+		/// <param name="id">the object to be removed's id</param>
+		public void Remove(int id)
+		{
+			removalQueue.Add (id);
+		}
+
+		/// <summary>
+		/// Queue an actor to be removed by the object
+		/// </summary>
+		/// <param name="actor">The actor object to be removed</param>
+		/// <returns>Success?</returns>
+		public void Remove(FActor actor)
+		{
+			Remove (actor.ID);
+		}
+
+		/// <summary>
+		/// Remove all actors of a type
+		/// </summary>
+		/// <typeparam name="T">The FActor child type</typeparam>
+		public void RemoveAll<T>() where T : FActor
+		{
+			List<FActor> tempActors = new List<FActor> (actors.Values); // Make a temporary copy off the list because we can't modify the list while looping through it
+			foreach (FActor actor in tempActors)
+			{
+				if (actor is T) // is the actor the right type?
+				{
+					Remove (actor.ID);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Update all children actors
+		/// </summary>
+		/// <param name="delta">the time since the last frame</param>
+		public void Update(FGameTime delta)
 		{
 			foreach (FActor actor in actors.Values)
 			{
 				actor.Update (delta);
 			}
+
+			// we need to wait to actually remove actors because if we remove them while iterating it crashes
+			if (removalQueue.Count > 0) // are there actors to be removed?
+				RemoveQueued (); // remove them
 		}
 
+		/// <summary>
+		/// Draw all children actors
+		/// </summary>
+		/// <param name="target">the target surface to draw to</param>
+		/// <param name="states">the current renderer state</param>
 		public void Draw(RenderTarget target, RenderStates states)
 		{
 			foreach (FActor actor in actors.Values)
