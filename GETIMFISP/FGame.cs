@@ -1,4 +1,5 @@
 using GETIMFISP.Extensions;
+using Glide;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -25,6 +26,8 @@ namespace GETIMFISP
 		public FActorManager ActorManager { get; private set; }
 		// The GameTime struct to keep track of all time-related things
 		public FGameTime gameTime;
+		// The Global object used for tweening
+		public Tweener tweener;
 
 		// RENDERING
 		// The window the game renders to.
@@ -111,10 +114,10 @@ namespace GETIMFISP
 					actor.Position = new Vector2f ((float) obj.X, (float) obj.Y);
 					actor.Name = obj.Name;
 
-					actor.OnGraphicsReady ();
-
 					// Add it to the manager
 					ActorManager.Add (actor);
+
+					actor.OnGraphicsReady ();
 
 					Console.WriteLine ("    Loaded successfully!");
 					successCount++;
@@ -129,10 +132,11 @@ namespace GETIMFISP
 		/// </summary>
 		public void Run()
 		{
+			tweener = new Tweener ();
+
 			LoadObjects ();
 
 			window = new RenderWindow (WindowMode, WindowTitle, WindowStyle);
-
 			RenderStates states = RenderStates.Default;
 
 			gameTime = new FGameTime ();
@@ -142,6 +146,8 @@ namespace GETIMFISP
 				window.DispatchEvents ();
 
 				ActorManager.Update (gameTime);
+
+				tweener.Update (gameTime.AsSeconds ());
 
 				window.Clear (backgroundColor);
 				ActorManager.Draw (window, states);

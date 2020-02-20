@@ -1,4 +1,5 @@
 ﻿using GETIMFISP;
+using Glide;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -26,7 +27,7 @@ namespace SFMLGame
 			// Background Color
 			game.backgroundColor = Color.Black;
 			// Start the game
-			game.Run (); 
+			game.Run ();
 
 			// Keeps the console window open after you close the game.
 			Console.ReadLine ();
@@ -45,6 +46,8 @@ namespace SFMLGame
 			// Load an animation of ABC
 			graphics.AddAnimation ("Animation1", new Texture [] { new Texture("Data/images/object1.png"), new Texture ("Data/images/object2.png"), new Texture ("Data/images/object3.png"), });
 			graphics.PlayAnimation ("Animation1");
+
+			Game.tweener.Tween (this, new { X = 20 }, 1);
 		}
 
 		public override void Draw(RenderTarget target, RenderStates states)
