@@ -7,16 +7,47 @@ using System.Threading.Tasks;
 
 namespace GETIMFISP
 {
-	public struct FGameTime
+	/// <summary>
+	/// A container for all things game time related
+	/// </summary>
+	public class FGameTime
 	{
+		/// <summary>
+		/// The time since last frame
+		/// </summary>
 		public Time deltaTime;
-		public Time elapsedTime;
+		/// <summary>
+		/// The total time the game has been running
+		/// </summary>
+		public Time totalElapsedTime;
+		/// <summary>
+		/// The internal clock to keep track of time with
+		/// </summary>
 		public Clock gameClock;
 
+		public FGameTime()
+		{
+			deltaTime = new Time ();
+			totalElapsedTime = new Time ();
+			gameClock = new Clock ();
+		}
+
+		/// <summary>
+		/// Proxy for deltaTime.AsSeconds()
+		/// </summary>
+		/// <returns></returns>
+		public float AsSeconds()
+		{
+			return deltaTime.AsSeconds ();
+		}
+
+		/// <summary>
+		/// Call this every frame
+		/// </summary>
 		public void Tick()
 		{
 			deltaTime = gameClock.Restart ();
-			elapsedTime += deltaTime;
+			totalElapsedTime += deltaTime;
 		}
 	}
 }

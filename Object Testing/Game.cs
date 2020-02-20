@@ -21,37 +21,35 @@ namespace SFMLGame
 			game = new FGame ("Data/main.tmx");
 			// Register Scripts
 			game.AddActorType<Player> ();
-			game.AddActorType<Controller> ();
 			// Set window info
-			game.windowInfo = FWindowInfo.SIMPLE_WINDOWED;
+			game.windowSettings = FWindowSettings.SIMPLE_WINDOWED;
 			// Background Color
 			game.backgroundColor = Color.Black;
+			// Start the game
 			game.Run (); 
 
+			// Keeps the console window open after you close the game.
 			Console.ReadLine ();
 		}
 	}
 
+	/// <summary>
+	/// Testing class.
+	/// </summary>
 	public class Player : FActor
 	{
 		public override void OnGraphicsReady()
 		{
-			graphics = new Sprite (new Texture($"Data/images/object{srcObject.Properties["number"]}.png"));
+			base.OnGraphicsReady ();
 
-			velocity = new Vector2f (20, 20);
+			// Load an animation of ABC
+			graphics.AddAnimation ("Animation1", new Texture [] { new Texture("Data/images/object1.png"), new Texture ("Data/images/object2.png"), new Texture ("Data/images/object3.png"), });
+			graphics.PlayAnimation ("Animation1");
 		}
-	}
 
-	public class Controller : FActor
-	{
-		public override void Update(Time delta)
+		public override void Draw(RenderTarget target, RenderStates states)
 		{
-			base.Update (delta);
-
-			if (Game.Elapsed.AsSeconds() > 2)
-			{
-				Manager.RemoveAll<Player> ();
-			}
+			base.Draw (target, states);
 		}
 	}
 }

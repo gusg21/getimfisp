@@ -11,6 +11,8 @@ namespace GETIMFISP
 	{
 		// The id of the actor
 		public int ID { get; set; }
+		// The name of the actor
+		public string Name { get; set; }
 		// The manager of the actor
 		public FActorManager Manager;
 		// The game of the manager (for convenience)
@@ -28,7 +30,7 @@ namespace GETIMFISP
 		public Vector2f acceleration = new Vector2f ();
 
 		// The graphics of the sprite.
-		public Sprite graphics = new Sprite();
+		public FSprite graphics = new FSprite();
 
 		// The tiled object this object is based off
 		public TmxObject srcObject = null;
@@ -58,8 +60,16 @@ namespace GETIMFISP
 		{
 			if (doBuiltInMotion)
 				DoMotion (delta);
+
+			// Update graphics
+			graphics.Update (delta);
 		}
 
+		/// <summary>
+		/// Draw the actor on the surface
+		/// </summary>
+		/// <param name="target">the surface to draw to</param>
+		/// <param name="states">the renderer state</param>
 		public virtual void Draw(RenderTarget target, RenderStates states)
 		{
 			target.Draw (graphics, states);

@@ -30,11 +30,11 @@ namespace GETIMFISP
 		// The window the game renders to.
 		public RenderWindow window;
 		// The information about the window
-		public FWindowInfo windowInfo = FWindowInfo.SIMPLE_WINDOWED;
+		public FWindowSettings windowSettings = FWindowSettings.SIMPLE_WINDOWED;
 		// Convenience setters/getters for WindowInfo
-		public string WindowTitle { get { return windowInfo.title; } set { windowInfo.title = value; } }
-		public VideoMode WindowMode { get { return windowInfo.windowMode; } set { windowInfo.windowMode = value; } }
-		public Styles WindowStyle { get { return windowInfo.style; } set { windowInfo.style = value; } }
+		public string WindowTitle { get { return windowSettings.title; } set { windowSettings.title = value; } }
+		public VideoMode WindowMode { get { return windowSettings.windowMode; } set { windowSettings.windowMode = value; } }
+		public Styles WindowStyle { get { return windowSettings.style; } set { windowSettings.style = value; } }
 		// Background color
 		public Color backgroundColor = new Color (215, 123, 186);
 
@@ -68,6 +68,8 @@ namespace GETIMFISP
 
 		void LoadObjects()
 		{
+			int successCount = 0;
+
 			// Loop through object groups in map
 			foreach (TmxObjectGroup objGroup in map.ObjectGroups)
 			{
@@ -97,17 +99,29 @@ namespace GETIMFISP
 					switch (obj.ObjectType)
 					{
 						case TmxObjectType.Tile:
+							// Loading tile image
 							TmxTileset tileset = map.GetTilesetWithGid (obj.Tile.Gid);
-							actor.graphics.Texture = tileset.GetTileTex (obj.Tile.Gid);
+							actor.graphics = new FSprite(tileset.GetTileTex (obj.Tile.Gid));
+							break;
+						case TmxObjectType.Basic:
 							break;
 					}
+
+					// Universal edits
+					actor.Position = new Vector2f ((float) obj.X, (float) obj.Y);
+					actor.Name = obj.Name;
+
+					actor.OnGraphicsReady ();
 
 					// Add it to the manager
 					ActorManager.Add (actor);
 
 					Console.WriteLine ("    Loaded successfully!");
+					successCount++;
 				}
 			}
+
+			Console.WriteLine ($"=== Loaded {successCount} object(s) successfully. ===");
 		}
 
 		/// <summary>
