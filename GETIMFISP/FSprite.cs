@@ -13,10 +13,12 @@ namespace GETIMFISP
 	/// </summary>
 	public class FSprite : Sprite
 	{
-		public Dictionary<string, FAnimation> animations;
+		Dictionary<string, FAnimation> animations;
 		public string currentAnimationName = null;
 		public FAnimation CurrentAnimation { get { return animations [currentAnimationName]; } }
 		public bool IsAnimationPlaying { get { return currentAnimationName != null; } }
+
+		public event EventHandler AnimationPlayed;
 
 		/// <summary>
 		/// Create a still sprite
@@ -87,6 +89,18 @@ namespace GETIMFISP
 		public void PlayAnimation(string animationName)
 		{
 			currentAnimationName = animationName;
+
+			AnimationPlayed?.Invoke (this, new EventArgs ());
+		}
+
+		/// <summary>
+		/// Get an animation
+		/// </summary>
+		/// <param name="animationName"></param>
+		/// <returns></returns>
+		public FAnimation GetAnimation(string animationName)
+		{
+			return animations [animationName];
 		}
 
 		/// <summary>

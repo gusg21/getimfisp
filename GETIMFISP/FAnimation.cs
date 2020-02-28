@@ -19,6 +19,9 @@ namespace GETIMFISP
 		public int CurrentFrame { get { return (int) Math.Floor (currentPlaytime * fps % NumOfFrames); } }
 		public Texture CurrentTexture { get { return frames[CurrentFrame]; } }
 
+		public event EventHandler FrameChanged;
+		public event EventHandler Looped;
+
 		/// <summary>
 		/// Create this animation from a List<> of textures.
 		/// </summary>
@@ -51,8 +54,14 @@ namespace GETIMFISP
 		/// <param name="dt"></param>
 		public void Update(float dt)
 		{
+			int lastFrame = CurrentFrame;
 			currentPlaytime += dt;
-			Console.WriteLine ($"Current Playtime: {currentPlaytime}");
+			if (lastFrame != CurrentFrame)
+			{
+				FrameChanged?.Invoke (this, new EventArgs ());
+				if (CurrentFrame == 0)
+					Looped?.Invoke (this, new EventArgs ());
+			}
 		}
 	}
 }

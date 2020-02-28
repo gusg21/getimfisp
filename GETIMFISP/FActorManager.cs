@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFML.Window;
 using System.Collections.Generic;
 
 namespace GETIMFISP
@@ -97,6 +98,54 @@ namespace GETIMFISP
 					Remove (actor.ID);
 				}
 			}
+		}
+
+		/// <summary>
+		/// Get an actor by their id
+		/// </summary>
+		/// <param name="id">the Id of the actor</param>
+		/// <returns></returns>
+		public FActor Get(int id)
+		{
+			return actors [id];
+		}
+
+		/// <summary>
+		/// Return all actors of a type
+		/// </summary>
+		/// <typeparam name="T">the actor type</typeparam>
+		/// <returns></returns>
+		public List<T> GetActorsByType<T>() where T : FActor
+		{
+			List<T> actorsToReturn = new List<T> ();
+
+			foreach (FActor actor in actors.Values)
+			{
+				if (actor is T) // is the actor the right type?
+				{
+					actorsToReturn.Add ((T) actor);
+				}
+			}
+
+			return actorsToReturn;
+		}
+
+		/// <summary>
+		/// Get one actor of a type. Not recommended unless you're sure there's only one actor.
+		/// </summary>
+		/// <typeparam name="T">The type to look for</typeparam>
+		/// <returns></returns>
+		public T GetActorByType<T>() where T : FActor
+		{
+			foreach (FActor actor in actors.Values)
+			{
+				if (actor is T) // is the actor the right type?
+				{
+					return (T) actor;
+				}
+			}
+
+			return null;
 		}
 
 		/// <summary>

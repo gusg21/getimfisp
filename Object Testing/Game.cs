@@ -46,8 +46,10 @@ namespace SFMLGame
 			// Load an animation of ABC
 			graphics.AddAnimation ("Animation1", new Texture [] { new Texture("Data/images/object1.png"), new Texture ("Data/images/object2.png"), new Texture ("Data/images/object3.png"), });
 			graphics.PlayAnimation ("Animation1");
+			graphics.GetAnimation("Animation1").fps = 1;
 
-			Game.tweener.Tween (this, new { X = 20 }, 1);
+			graphics.GetAnimation ("Animation1").FrameChanged += (sender, e) => { Console.WriteLine ("Frame Change"); };
+			graphics.GetAnimation ("Animation1").Looped += (sender, e) => { Console.WriteLine ("Loop"); };
 		}
 
 		public override void Draw(RenderTarget target, RenderStates states)

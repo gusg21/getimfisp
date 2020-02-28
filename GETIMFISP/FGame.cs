@@ -46,6 +46,7 @@ namespace GETIMFISP
 			map = new TmxMap (startingMap);
 			ActorTypes = new Dictionary<string, Type> ();
 			ActorManager = new FActorManager (this);
+			tweener = new Tweener ();
 		}
 
 		/// <summary>
@@ -92,9 +93,11 @@ namespace GETIMFISP
 						continue;
 					}
 
+					// create an empty actor to load into
 					FActor actor = new FActor();
 					actor.srcObject = obj;
 					
+					// if the object's type isn't empty try to load it
 					if (obj.Type != "")
 						actor = (FActor) Activator.CreateInstance (ActorTypes [obj.Type]);
 
@@ -117,6 +120,7 @@ namespace GETIMFISP
 					// Add it to the manager
 					ActorManager.Add (actor);
 
+					// everything's ready; the object can now set itself up
 					actor.OnGraphicsReady ();
 
 					Console.WriteLine ("    Loaded successfully!");
@@ -132,28 +136,35 @@ namespace GETIMFISP
 		/// </summary>
 		public void Run()
 		{
-			tweener = new Tweener ();
-
-			LoadObjects ();
-
 			window = new RenderWindow (WindowMode, WindowTitle, WindowStyle);
 			RenderStates states = RenderStates.Default;
 
+			// Window close event
+			window.Closed += (sender, e) => { ((Window) sender).Close (); };
+
+			// Load the objects into the game
+			LoadObjects ();
+
 			gameTime = new FGameTime ();
 
+			// Main game loop
 			while (window.IsOpen)
 			{
-				window.DispatchEvents ();
-
+				// Global data updates
 				ActorManager.Update (gameTime);
-
 				tweener.Update (gameTime.AsSeconds ());
 
+				// Window events update
+				window.DispatchEvents ();
+
+				// Rendering
 				window.Clear (backgroundColor);
 				ActorManager.Draw (window, states);
 				
+				// Update the screen
 				window.Display ();
 
+				// record the frame time
 				gameTime.Tick ();
 			}
 		}
