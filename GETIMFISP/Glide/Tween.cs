@@ -21,10 +21,12 @@ namespace Glide
 
 #region Callbacks
 		private Func<float, float> ease;
-        private Action begin, update, complete;
+		public event EventHandler Begun;
+		public event EventHandler Updated;
+		public event EventHandler Completed;
 #endregion
 
-#region Timing
+		#region Timing
 		public bool Paused { get; private set; }
         private float Delay, repeatDelay;
         private float Duration;
@@ -117,8 +119,8 @@ namespace Glide
 						return;
 				}
 				
-				if (time == 0 && timesRepeated == 0 && begin != null)
-					begin();
+				if (time == 0 && timesRepeated == 0)
+					Begun?.Invoke (this, new EventArgs());
 				
 				time += elapsed;
 				float setTimeTo = time;
@@ -164,12 +166,11 @@ namespace Glide
 				//	If reflect mode is on, flip start to end
 				if (time == 0 && (behavior & MemberLerper.Behavior.Reflect) == MemberLerper.Behavior.Reflect)
 					Reverse();
+
+				Updated?.Invoke(this, new EventArgs());
 				
-				if (update != null)
-					update();
-				
-				if (doComplete && complete != null)
-					complete();
+				if (doComplete)
+					Completed?.Invoke(this, new EventArgs());
         	}
 		}
 		
@@ -210,43 +211,6 @@ namespace Glide
 		public Tween Ease(Func<float, float> ease)
 		{
 			this.ease = ease;
-			return this;
-		}
-		
-		/// <summary>
-		/// Set a function to call when the tween begins (useful when using delays). Can be called multiple times for compound callbacks.
-		/// </summary>
-		/// <param name="callback">The function that will be called when the tween starts, after the delay.</param>
-		/// <returns>A reference to this.</returns>
-		public Tween OnBegin(Action callback)
-		{
-			if (begin == null) begin = callback;
-			else begin += callback;
-			return this;
-		}
-		
-		/// <summary>
-		/// Set a function to call when the tween finishes. Can be called multiple times for compound callbacks.
-		/// If the tween repeats infinitely, this will be called each time; otherwise it will only run when the tween is finished repeating.
-		/// </summary>
-		/// <param name="callback">The function that will be called on tween completion.</param>
-		/// <returns>A reference to this.</returns>
-		public Tween OnComplete(Action callback)
-		{
-			if (complete == null) complete = callback;
-			else complete += callback;
-			return this;
-		}
-		
-		/// <summary>
-		/// Set a function to call as the tween updates. Can be called multiple times for compound callbacks.
-		/// </summary>
-		/// <param name="callback">The function to use.</param>
-		/// <returns>A reference to this.</returns>
-		public Tween OnUpdate(Action callback)
-		{
-			if (update == null) update = callback;
-			else update += callback;
 			return this;
 		}
 		
@@ -368,7 +332,6 @@ namespace Glide
 		public void CancelAndComplete()
 		{
 			time = Duration;
-			update = null;
             Remover.Remove(this);
 		}
 		

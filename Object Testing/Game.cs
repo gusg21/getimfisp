@@ -1,5 +1,9 @@
 ﻿using GETIMFISP;
 using Glide;
+using RtMidi.Core;
+using RtMidi.Core.Devices;
+using RtMidi.Core.Devices.Infos;
+using RtMidi.Core.Enums;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -39,22 +43,35 @@ namespace SFMLGame
 	/// </summary>
 	public class Player : FActor
 	{
+		Tween tween;
+
 		public override void OnGraphicsReady()
 		{
 			base.OnGraphicsReady ();
 
 			// Load an animation of ABC
 			graphics.AddAnimation ("Animation1", new Texture [] { new Texture("Data/images/object1.png"), new Texture ("Data/images/object2.png"), new Texture ("Data/images/object3.png"), });
-			graphics.PlayAnimation ("Animation1");
-			graphics.GetAnimation("Animation1").fps = 1;
+			graphics.SwitchAnimation ("Animation1");
 
-			graphics.GetAnimation ("Animation1").FrameChanged += (sender, e) => { Console.WriteLine ("Frame Change"); };
-			graphics.GetAnimation ("Animation1").Looped += (sender, e) => { Console.WriteLine ("Loop"); };
+			Clicked += Player_Clicked;
+
+			Console.WriteLine (MidiDeviceManager.Default.OutputDevices.ToArray ()[1].Name);
+			IMidiOutputDevice dev = MidiDeviceManager.Default.OutputDevices.ToArray () [1].CreateDevice ();
+			Console.WriteLine (dev.Send (new RtMidi.Core.Messages.NoteOnMessage (Channel.Channel1, Key.Key59, 64)));
 		}
 
-		public override void Draw(RenderTarget target, RenderStates states)
+		private void Player_Clicked(object sender, MouseButtonEventArgs e)
 		{
-			base.Draw (target, states);
+			tween = Game.tweener.Tween (this, new { X = 20 }, 1);
+			tween.Ease (Ease.QuadInOut);
+			tween.Completed += Tween_Completed;
+		}
+
+		private void Tween_Completed(object sender, EventArgs e)
+		{
+			X = (float) srcObject.X;
+
+			graphics.NextFrame ();
 		}
 	}
 }

@@ -18,6 +18,7 @@ namespace GETIMFISP
 		public int fps = 2;
 		public int CurrentFrame { get { return (int) Math.Floor (currentPlaytime * fps % NumOfFrames); } }
 		public Texture CurrentTexture { get { return frames[CurrentFrame]; } }
+		public bool Playing = false;
 
 		public event EventHandler FrameChanged;
 		public event EventHandler Looped;
@@ -55,13 +56,38 @@ namespace GETIMFISP
 		public void Update(float dt)
 		{
 			int lastFrame = CurrentFrame;
-			currentPlaytime += dt;
+			if (Playing)
+				currentPlaytime += dt;
 			if (lastFrame != CurrentFrame)
 			{
 				FrameChanged?.Invoke (this, new EventArgs ());
 				if (CurrentFrame == 0)
 					Looped?.Invoke (this, new EventArgs ());
 			}
+		}
+
+		/// <summary>
+		/// Go to the next frame of animation
+		/// </summary>
+		public void NextFrame()
+		{
+			currentPlaytime += 1.0f / fps;
+		}
+
+		/// <summary>
+		/// Go to the previous frame of animation
+		/// </summary>
+		public void PreviousFrame()
+		{
+			currentPlaytime -= 1.0f / fps;
+		}
+
+		/// <summary>
+		/// Reset the playtime of the animation
+		/// </summary>
+		public void Restart()
+		{
+			currentPlaytime = 0f;
 		}
 	}
 }

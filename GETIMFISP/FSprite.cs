@@ -13,6 +13,8 @@ namespace GETIMFISP
 	/// </summary>
 	public class FSprite : Sprite
 	{
+		public static FSprite NULL_SPRITE = new FSprite("Internal Data/null.png");
+
 		Dictionary<string, FAnimation> animations;
 		public string currentAnimationName = null;
 		public FAnimation CurrentAnimation { get { return animations [currentAnimationName]; } }
@@ -27,6 +29,7 @@ namespace GETIMFISP
 		public FSprite(Texture texture)
 		{
 			FromTex (texture);
+			Texture = CurrentAnimation.CurrentTexture;
 		}
 		
 		/// <summary>
@@ -36,6 +39,7 @@ namespace GETIMFISP
 		public FSprite(string filepath)
 		{
 			FromTex (new Texture (filepath));
+			Texture = CurrentAnimation.CurrentTexture;
 		}
 
 		/// <summary>
@@ -45,6 +49,8 @@ namespace GETIMFISP
 		public FSprite(Dictionary<string, FAnimation> animations)
 		{
 			this.animations = animations;
+			currentAnimationName = animations.First ().Key;
+			Texture = CurrentAnimation.CurrentTexture;
 		}
 
 		/// <summary>
@@ -89,6 +95,20 @@ namespace GETIMFISP
 		public void PlayAnimation(string animationName)
 		{
 			currentAnimationName = animationName;
+			CurrentAnimation.Playing = true;
+			Texture = CurrentAnimation.CurrentTexture;
+
+			AnimationPlayed?.Invoke (this, new EventArgs ());
+		}
+
+		/// <summary>
+		/// Changes the current animation without playing it
+		/// </summary>
+		/// <param name="animationName">The animation to switch to</param>
+		public void SwitchAnimation(string animationName)
+		{
+			currentAnimationName = animationName;
+			Texture = CurrentAnimation.CurrentTexture;
 
 			AnimationPlayed?.Invoke (this, new EventArgs ());
 		}
@@ -101,6 +121,30 @@ namespace GETIMFISP
 		public FAnimation GetAnimation(string animationName)
 		{
 			return animations [animationName];
+		}
+
+		/// <summary>
+		/// Restarts the Animation currently playing.
+		/// </summary>
+		public void RestartAnimation()
+		{
+			CurrentAnimation.Restart ();
+		}
+
+		/// <summary>
+		/// Go to the next frame of animation
+		/// </summary>
+		public void NextFrame()
+		{
+			CurrentAnimation.NextFrame ();
+		}
+
+		/// <summary>
+		/// Go to the previous frame of animation
+		/// </summary>
+		public void PreviousFrame()
+		{
+			CurrentAnimation.PreviousFrame ();
 		}
 
 		/// <summary>

@@ -95,7 +95,6 @@ namespace GETIMFISP
 
 					// create an empty actor to load into
 					FActor actor = new FActor();
-					actor.srcObject = obj;
 					
 					// if the object's type isn't empty try to load it
 					if (obj.Type != "")
@@ -116,6 +115,7 @@ namespace GETIMFISP
 					// Universal edits
 					actor.Position = new Vector2f ((float) obj.X, (float) obj.Y);
 					actor.Name = obj.Name;
+					actor.srcObject = obj;
 
 					// Add it to the manager
 					ActorManager.Add (actor);

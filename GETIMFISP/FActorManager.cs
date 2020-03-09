@@ -13,6 +13,7 @@ namespace GETIMFISP
 		public FGame Game;
 
 		Dictionary<int, FActor> actors; // internal actor holder (id -> actor)
+		List<FActor> sortedActors;
 		List<int> removalQueue; // the actors to remove
 		int nextId; // the next id to be given out
 
@@ -20,7 +21,10 @@ namespace GETIMFISP
 		{
 			Game = game;
 			actors = new Dictionary<int, FActor> ();
+			sortedActors = new List<FActor> ();
 			removalQueue = new List<int> ();
+
+			SortByDepth ();
 		}
 
 		/// <summary>
@@ -33,6 +37,8 @@ namespace GETIMFISP
 			actors.Add (id, actor);
 			actor.ID = id;
 			actor.Manager = this;
+
+			SortByDepth ();
 		}
 
 		/// <summary>
@@ -148,6 +154,12 @@ namespace GETIMFISP
 			return null;
 		}
 
+		public void SortByDepth()
+		{
+			sortedActors = new List<FActor> (actors.Values);
+			sortedActors.Sort ((FActor a, FActor b) => { return a.Depth.CompareTo (b.Depth); });
+		}
+
 		/// <summary>
 		/// Update all children actors
 		/// </summary>
@@ -161,7 +173,10 @@ namespace GETIMFISP
 
 			// we need to wait to actually remove actors because if we remove them while iterating it crashes
 			if (removalQueue.Count > 0) // are there actors to be removed?
+			{
 				RemoveQueued (); // remove them
+				SortByDepth (); // re-sort
+			}
 		}
 
 		/// <summary>
