@@ -13,7 +13,7 @@ namespace GETIMFISP
 		public FGame Game;
 
 		Dictionary<int, FActor> actors; // internal actor holder (id -> actor)
-		List<FActor> sortedActors;
+		List<FActor> sortedActors; // The actors in order
 		List<int> removalQueue; // the actors to remove
 		int nextId; // the next id to be given out
 
@@ -153,11 +153,25 @@ namespace GETIMFISP
 
 			return null;
 		}
-
+		
+		/// <summary>
+		/// Sort the actors so they render in the right order
+		/// </summary>
 		public void SortByDepth()
 		{
 			sortedActors = new List<FActor> (actors.Values);
-			sortedActors.Sort ((FActor a, FActor b) => { return a.Depth.CompareTo (b.Depth); });
+			sortedActors.Sort ((FActor a, FActor b) => {
+				System.Console.WriteLine ($"{a.Depth} ({a.Name}) compared w/ {b.Depth} ({b.Name})");
+				return a.Depth.CompareTo (b.Depth);
+			});
+			if (sortedActors.Count != 0)
+			{
+				System.Console.WriteLine ($"Sorted actors, first depth: {sortedActors [0].Depth}");
+			}
+			else
+			{
+				System.Console.WriteLine ("No sorted actors.");
+			}
 		}
 
 		/// <summary>
@@ -166,7 +180,7 @@ namespace GETIMFISP
 		/// <param name="delta">the time since the last frame</param>
 		public void Update(FGameTime delta)
 		{
-			foreach (FActor actor in actors.Values)
+			foreach (FActor actor in sortedActors)
 			{
 				actor.Update (delta);
 			}
@@ -186,7 +200,7 @@ namespace GETIMFISP
 		/// <param name="states">the current renderer state</param>
 		public void Draw(RenderTarget target, RenderStates states)
 		{
-			foreach (FActor actor in actors.Values)
+			foreach (FActor actor in sortedActors)
 			{
 				actor.Draw (target, states);
 			}

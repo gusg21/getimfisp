@@ -28,8 +28,6 @@ namespace SFMLGame
 			game.AddActorType<Player> ();
 			// Set window info
 			game.windowSettings = FWindowSettings.SIMPLE_WINDOWED;
-			// Background Color
-			game.backgroundColor = Color.Black;
 			// Start the game
 			game.Run ();
 
@@ -55,16 +53,17 @@ namespace SFMLGame
 
 			Clicked += Player_Clicked;
 
-			Console.WriteLine (MidiDeviceManager.Default.OutputDevices.ToArray ()[1].Name);
-			IMidiOutputDevice dev = MidiDeviceManager.Default.OutputDevices.ToArray () [1].CreateDevice ();
-			Console.WriteLine (dev.Send (new RtMidi.Core.Messages.NoteOnMessage (Channel.Channel1, Key.Key59, 64)));
+			graphics.Scale = new Vector2f(20, 1);
+
+			Game.camera.Target (Position);
 		}
 
 		private void Player_Clicked(object sender, MouseButtonEventArgs e)
 		{
-			tween = Game.tweener.Tween (this, new { X = 20 }, 1);
+			tween = Game.tweener.Tween (this, new { X = 20, RotationDegrees = RotationDegrees + 45 }, 1);
 			tween.Ease (Ease.QuadInOut);
 			tween.Completed += Tween_Completed;
+			Game.Fullscreen = !Game.Fullscreen;
 		}
 
 		private void Tween_Completed(object sender, EventArgs e)
@@ -72,6 +71,13 @@ namespace SFMLGame
 			X = (float) srcObject.X;
 
 			graphics.NextFrame ();
+		}
+
+		public override void Draw(RenderTarget target, RenderStates states)
+		{
+			base.Draw (target, states);
+
+			//Console.WriteLine ("Player Draw");
 		}
 	}
 }

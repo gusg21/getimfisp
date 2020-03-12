@@ -28,6 +28,8 @@ namespace GETIMFISP
 		public FGameTime gameTime;
 		// The Global object used for tweening
 		public Tweener tweener;
+		// The current camera
+		public FCamera camera;
 
 		// RENDERING
 		// The window the game renders to.
@@ -38,8 +40,9 @@ namespace GETIMFISP
 		public string WindowTitle { get { return windowSettings.title; } set { windowSettings.title = value; } }
 		public VideoMode WindowMode { get { return windowSettings.windowMode; } set { windowSettings.windowMode = value; } }
 		public Styles WindowStyle { get { return windowSettings.style; } set { windowSettings.style = value; } }
+		public bool Fullscreen { get { return (WindowStyle & Styles.Fullscreen) > 0; } set { WindowStyle ^= Styles.Fullscreen; } }
 		// Background color
-		public Color backgroundColor = new Color (215, 123, 186);
+		public Color backgroundColor = new Color (33, 33, 34);
 
 		public FGame(string startingMap)
 		{
@@ -70,7 +73,7 @@ namespace GETIMFISP
 			ActorTypes.Add (typeName, typeof (T));
 		}
 
-		void LoadObjects()
+		void LoadActors()
 		{
 			int successCount = 0;
 
@@ -123,12 +126,34 @@ namespace GETIMFISP
 					// everything's ready; the object can now set itself up
 					actor.OnGraphicsReady ();
 
+					// Depth is setup in OnGraphicsReady(), so we account for it here
+					ActorManager.SortByDepth ();
+
 					Console.WriteLine ("    Loaded successfully!");
+
+					// keep track of the object we actually loaded
 					successCount++;
 				}
 			}
 
 			Console.WriteLine ($"=== Loaded {successCount} object(s) successfully. ===");
+
+			ActorManager.SortByDepth ();
+		}
+
+		void LoadTilemaps()
+		{
+			int depth = 0;
+			foreach (TmxLayer layer in map.Layers)
+			{
+				Console.WriteLine ($"Adding Tilemap for layer: {layer.Name}");
+
+				FTilemap mapActor = new FTilemap (layer, new FTileset (map.Tilesets [0]), -1 - depth);
+				ActorManager.Add (mapActor);
+				mapActor.OnGraphicsReady ();
+
+				depth++;
+			}
 		}
 
 		/// <summary>
@@ -136,14 +161,19 @@ namespace GETIMFISP
 		/// </summary>
 		public void Run()
 		{
+			// Window create
 			window = new RenderWindow (WindowMode, WindowTitle, WindowStyle);
 			RenderStates states = RenderStates.Default;
+			camera = new FCamera (window.Size.To2f ()); // must be set up with window
 
 			// Window close event
 			window.Closed += (sender, e) => { ((Window) sender).Close (); };
+			window.Resized += (sender, e) => { camera.Resize (e.Width, e.Height); };
 
 			// Load the objects into the game
-			LoadObjects ();
+			LoadActors ();
+			// Load the tilemap
+			LoadTilemaps ();
 
 			gameTime = new FGameTime ();
 
@@ -152,13 +182,15 @@ namespace GETIMFISP
 			{
 				// Global data updates
 				ActorManager.Update (gameTime);
-				tweener.Update (gameTime.AsSeconds ());
+				tweener.Update (gameTime);
+				camera.Update (gameTime);
 
 				// Window events update
 				window.DispatchEvents ();
 
 				// Rendering
 				window.Clear (backgroundColor);
+				window.SetView (camera.GetView());
 				ActorManager.Draw (window, states);
 				
 				// Update the screen

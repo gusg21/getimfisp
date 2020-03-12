@@ -63,9 +63,14 @@ namespace GETIMFISP
 		
 		void FromTex(Texture tex)
 		{
+			currentAnimationName = "Still";
 			animations = new Dictionary<string, FAnimation> ();
 			AddAnimation ("Still", new FAnimation (new Texture [] { tex }));
 			PlayAnimation ("Still");
+		}
+
+		public void CenterOrigin()
+		{
 		}
 
 		/// <summary>

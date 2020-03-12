@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using GETIMFISP;
 using Glide;
 
 namespace Glide
@@ -190,11 +191,10 @@ namespace Glide
 	        /// <summary>
 	        /// Updates the tweener and all objects it contains.
 	        /// </summary>
-	        /// <param name="secondsElapsed">Seconds elapsed since last update.</param>
-	        public void Update(float secondsElapsed)
+	        public void Update(FGameTime gameTime)
 	        {
 	        	for (int i = 0; i < allTweens.Count; ++i)
-	        		allTweens[i].Update(secondsElapsed);
+	        		allTweens[i].Update(gameTime.AsSeconds());
 	
 	            AddAndRemove();
 	        }

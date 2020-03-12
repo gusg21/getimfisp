@@ -66,6 +66,9 @@
     <Compile Include="Extensions\TimeExtensions.cs" />
     <Compile Include="Extensions\TmxMapExtensions.cs" />
     <Compile Include="Extensions\TmxTilesetExtenstions.cs" />
+    <Compile Include="FCamera.cs" />
+    <Compile Include="FTilemap.cs" />
+    <Compile Include="FTileset.cs" />
     <Compile Include="Glide\Ease.cs" />
     <Compile Include="Glide\MemberAccessor.cs" />
     <Compile Include="Glide\MemberLerper.cs" />

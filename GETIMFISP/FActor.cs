@@ -26,9 +26,12 @@ namespace GETIMFISP
 		// Individual components of position
 		public float X { get { return graphics.Position.X; } set { graphics.Position = new Vector2f (value, graphics.Position.Y); } }
 		public float Y { get { return graphics.Position.Y; } set { graphics.Position = new Vector2f (graphics.Position.X, value); } }
+		public float RotationDegrees { get { return graphics.Rotation; } set { graphics.Rotation = value; } }
+		public float RotationRadians { get { return graphics.Rotation / 57.295779513f; } set { graphics.Rotation = value * 57.295779513f; } }
 
+		// The render order
 		private int depth = 0;
-		public int Depth { get { return depth; } set { Manager.SortByDepth (); depth = value; } }
+		public int Depth { get { return depth; } set { depth = value; Manager.SortByDepth (); } }
 
 		// Built-in motion
 		public bool doBuiltInMotion = true;
@@ -36,7 +39,11 @@ namespace GETIMFISP
 		public Vector2f acceleration = new Vector2f ();
 
 		// The graphics of the sprite.
-		public FSprite graphics = new FSprite();
+		public FSprite graphics = FSprite.NULL_SPRITE;
+		// Use the built-in renderer?
+		public bool UseBuiltinRenderer { protected set; get; } = true;
+		// Visible?
+		public bool Visible { get; protected set; } = true;
 
 		// The 2d rectangle that represents the collider for the actor.
 		public FloatRect bbox = new FloatRect ();
@@ -44,21 +51,25 @@ namespace GETIMFISP
 		// The tiled object this object is based off
 		public TmxObject srcObject;
 
+		// Click Event
 		public event EventHandler<MouseButtonEventArgs> Clicked;
 		private void ClickCheck(object sender, MouseButtonEventArgs e)
 		{
-			if (bbox.Contains(e.X, e.Y))
+			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
+			if (bbox.Contains(converted))
 			{
 				Clicked?.Invoke (this, e);
 			}
 		}
 
+		// Mouse Over events
 		public bool mouseOver = false;
 
 		public event EventHandler<MouseMoveEventArgs> MouseEntered;
 		private void MouseEnteredCheck(object sender, MouseMoveEventArgs e)
 		{
-			if (bbox.Contains (e.X, e.Y))
+			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
+			if (bbox.Contains (converted))
 			{
 				mouseOver = true;
 				MouseEntered?.Invoke (this, e);
@@ -68,7 +79,8 @@ namespace GETIMFISP
 		public event EventHandler<MouseMoveEventArgs> MouseLeft;
 		private void MouseLeftCheck(object sender, MouseMoveEventArgs e)
 		{
-			if (bbox.Contains (e.X, e.Y))
+			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
+			if (bbox.Contains (converted))
 			{
 				mouseOver = false;
 				MouseLeft?.Invoke (this, e);
@@ -86,13 +98,15 @@ namespace GETIMFISP
 
 			Game.window.MouseButtonReleased += ClickCheck;
 			Game.window.MouseMoved += MouseEnteredCheck;
+
+			FixName ();
 		}
 
 		public void UpdateBBox()
 		{
 			if (graphics.Texture != null)
 			{
-				bbox = new FloatRect (Position, graphics.Texture.Size.To2f());
+				bbox = new FloatRect (Position, graphics.Texture.Size.To2f().Mul(graphics.Scale));
 			}
 			else
 			{
@@ -111,11 +125,22 @@ namespace GETIMFISP
 		}
 
 		/// <summary>
+		/// Fix the Name prop. if unset
+		/// </summary>
+		void FixName()
+		{
+			if (Name == "")
+				Name = $"Object ({srcObject.ObjectType}) @ {X}, {Y}";
+		}
+
+		/// <summary>
 		/// Update the actor
 		/// </summary>
 		/// <param name="delta">time since last frame</param>
 		public virtual void Update(FGameTime delta)
 		{
+			FixName ();
+
 			if (doBuiltInMotion)
 				DoMotion (delta);
 
@@ -132,7 +157,8 @@ namespace GETIMFISP
 		/// <param name="states">the renderer state</param>
 		public virtual void Draw(RenderTarget target, RenderStates states)
 		{
-			target.Draw (graphics, states);
+			if (UseBuiltinRenderer && Visible)
+				target.Draw (graphics, states);
 		}
 	}
 }
