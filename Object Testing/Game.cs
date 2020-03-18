@@ -1,5 +1,6 @@
 ﻿using GETIMFISP;
 using Glide;
+using ImGuiNET;
 using RtMidi.Core;
 using RtMidi.Core.Devices;
 using RtMidi.Core.Devices.Infos;
@@ -52,10 +53,20 @@ namespace SFMLGame
 			graphics.SwitchAnimation ("Animation1");
 
 			Clicked += Player_Clicked;
+			Game.window.KeyPressed += Window_KeyPressed;
 
 			graphics.Scale = new Vector2f(20, 1);
 
 			Game.camera.Target (Position);
+		}
+
+		private void Window_KeyPressed(object sender, KeyEventArgs e)
+		{
+			if (e.Code == Keyboard.Key.F)
+			{
+				Console.WriteLine ("Toggling fullscreen...");
+				Game.ToggleFullscreen ();
+			}
 		}
 
 		private void Player_Clicked(object sender, MouseButtonEventArgs e)
@@ -63,7 +74,6 @@ namespace SFMLGame
 			tween = Game.tweener.Tween (this, new { X = 20, RotationDegrees = RotationDegrees + 45 }, 1);
 			tween.Ease (Ease.QuadInOut);
 			tween.Completed += Tween_Completed;
-			Game.Fullscreen = !Game.Fullscreen;
 		}
 
 		private void Tween_Completed(object sender, EventArgs e)

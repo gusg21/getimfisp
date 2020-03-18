@@ -40,7 +40,7 @@ namespace GETIMFISP
 		public string WindowTitle { get { return windowSettings.title; } set { windowSettings.title = value; } }
 		public VideoMode WindowMode { get { return windowSettings.windowMode; } set { windowSettings.windowMode = value; } }
 		public Styles WindowStyle { get { return windowSettings.style; } set { windowSettings.style = value; } }
-		public bool Fullscreen { get { return (WindowStyle & Styles.Fullscreen) > 0; } set { WindowStyle ^= Styles.Fullscreen; } }
+		public bool IsFullscreen { get; private set; }
 		// Background color
 		public Color backgroundColor = new Color (33, 33, 34);
 
@@ -71,6 +71,13 @@ namespace GETIMFISP
 		{
 			Console.WriteLine ($"Registered script with overridden name: {typeName}");
 			ActorTypes.Add (typeName, typeof (T));
+		}
+
+		public void ToggleFullscreen()
+		{
+			WindowStyle ^= Styles.Fullscreen;
+			IsFullscreen = !IsFullscreen;
+			CreateWindow ();
 		}
 
 		void LoadActors()
@@ -156,18 +163,32 @@ namespace GETIMFISP
 			}
 		}
 
+		public void CreateWindow()
+		{
+			if (window != null && window.IsOpen)
+			{
+				window.Close ();
+			}
+
+			VideoMode mode = (IsFullscreen ? VideoMode.DesktopMode : WindowMode);
+			Console.WriteLine (mode);
+			window = new RenderWindow (mode, WindowTitle, WindowStyle);
+			
+			camera = new FCamera (window.Size.To2f ()); // must be set up with window
+			camera.Resize (window.Size.X, window.Size.Y);
+		}
+
 		/// <summary>
 		/// Starts the game. Will block your code.
 		/// </summary>
 		public void Run()
 		{
-			// Window create
-			window = new RenderWindow (WindowMode, WindowTitle, WindowStyle);
+			// Window create (and camera)
+			CreateWindow ();
 			RenderStates states = RenderStates.Default;
-			camera = new FCamera (window.Size.To2f ()); // must be set up with window
 
 			// Window close event
-			window.Closed += (sender, e) => { ((Window) sender).Close (); };
+			window.Closed += (sender, e) => { Console.WriteLine ("Closing window..."); ((Window) sender).Close (); };
 			window.Resized += (sender, e) => { camera.Resize (e.Width, e.Height); };
 
 			// Load the objects into the game
