@@ -1,19 +1,9 @@
 ﻿using GETIMFISP;
 using Glide;
-using ImGuiNET;
-using RtMidi.Core;
-using RtMidi.Core.Devices;
-using RtMidi.Core.Devices.Infos;
-using RtMidi.Core.Enums;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TiledSharp;
 
 namespace SFMLGame
 {
