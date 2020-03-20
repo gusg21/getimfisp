@@ -73,6 +73,7 @@
     <Compile Include="FCamera.cs" />
     <Compile Include="FTilemap.cs" />
     <Compile Include="FTileset.cs" />
+    <Compile Include="FTilesetManager.cs" />
     <Compile Include="Glide\Ease.cs" />
     <Compile Include="Glide\MemberAccessor.cs" />
     <Compile Include="Glide\MemberLerper.cs" />
@@ -118,6 +119,7 @@
     <Content Include="libsndfile-1.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Native\wren.dll" />
     <Content Include="openal32.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

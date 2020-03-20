@@ -20,14 +20,9 @@ namespace GETIMFISP
 		public FActorManager Manager;
 		// The game of the manager (for convenience)
 		public FGame Game { get { return Manager.Game; } }
-
-		// Current position (convenience for graphics.Position)
-		public Vector2f Position { get { return graphics.Position; } set { graphics.Position = value; } }
-		// Individual components of position
-		public float X { get { return graphics.Position.X; } set { graphics.Position = new Vector2f (value, graphics.Position.Y); } }
-		public float Y { get { return graphics.Position.Y; } set { graphics.Position = new Vector2f (graphics.Position.X, value); } }
-		public float RotationDegrees { get { return graphics.Rotation; } set { graphics.Rotation = value; } }
-		public float RotationRadians { get { return graphics.Rotation / 57.295779513f; } set { graphics.Rotation = value * 57.295779513f; } }
+		
+		public float RotationDegrees { get { return Graphics.Rotation; } set { Graphics.Rotation = value; } }
+		public float RotationRadians { get { return Graphics.Rotation / 57.295779513f; } set { Graphics.Rotation = value * 57.295779513f; } }
 
 		// The render order
 		private int depth = 0;
@@ -35,43 +30,44 @@ namespace GETIMFISP
 
 		// Built-in motion
 		public bool doBuiltInMotion = true;
-		public Vector2f velocity = new Vector2f();
-		public Vector2f acceleration = new Vector2f ();
+		public Vector2f Velocity = new Vector2f();
+		public Vector2f Acceleration = new Vector2f ();
 
 		// The graphics of the sprite.
-		public FSprite graphics = FSprite.NULL_SPRITE;
+		public FSprite Graphics = FSprite.NULL_SPRITE;
 		// Use the built-in renderer?
 		public bool UseBuiltinRenderer { protected set; get; } = true;
 		// Visible?
-		public bool Visible { get; protected set; } = true;
+		public bool Visible { get { return Graphics.Visible; } set { Graphics.Visible = value; } }
 
 		// The 2d rectangle that represents the collider for the actor.
-		public FloatRect bbox = new FloatRect ();
+		public FloatRect BBox = new FloatRect ();
+		public bool CalcBBoxOffGraphics = true;
 
 		// The tiled object this object is based off
-		public TmxObject srcObject;
+		public TmxObject SrcObject;
 
 		// Click Event
 		public event EventHandler<MouseButtonEventArgs> Clicked;
 		private void ClickCheck(object sender, MouseButtonEventArgs e)
 		{
 			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
-			if (bbox.Contains(converted))
+			if (BBox.Contains(converted))
 			{
 				Clicked?.Invoke (this, e);
 			}
 		}
 
 		// Mouse Over events
-		public bool mouseOver = false;
+		public bool MouseOver = false;
 
 		public event EventHandler<MouseMoveEventArgs> MouseEntered;
 		private void MouseEnteredCheck(object sender, MouseMoveEventArgs e)
 		{
 			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
-			if (bbox.Contains (converted))
+			if (BBox.Contains (converted))
 			{
-				mouseOver = true;
+				MouseOver = true;
 				MouseEntered?.Invoke (this, e);
 			}
 		}
@@ -80,9 +76,9 @@ namespace GETIMFISP
 		private void MouseLeftCheck(object sender, MouseMoveEventArgs e)
 		{
 			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
-			if (bbox.Contains (converted))
+			if (BBox.Contains (converted))
 			{
-				mouseOver = false;
+				MouseOver = false;
 				MouseLeft?.Invoke (this, e);
 			}
 		}
@@ -104,13 +100,21 @@ namespace GETIMFISP
 
 		public void UpdateBBox()
 		{
-			if (graphics.Texture != null)
+			if (Graphics.Texture != null)
 			{
-				bbox = new FloatRect (Position, graphics.Texture.Size.To2f().Mul(graphics.Scale));
+				if (CalcBBoxOffGraphics)
+				{
+					BBox = new FloatRect (Graphics.Position, Graphics.Texture.Size.To2f().Mul(Graphics.Scale));
+				}
+				else
+				{
+					BBox.Left = Graphics.Position.X;
+					BBox.Top = Graphics.Position.Y;
+				}
 			}
 			else
 			{
-				bbox = new FloatRect ();
+				BBox = new FloatRect ();
 			}
 		}
 
@@ -120,8 +124,8 @@ namespace GETIMFISP
 		/// <param name="delta">time since last frame</param>
 		public virtual void DoMotion(FGameTime delta)
 		{
-			velocity += acceleration * delta.AsSeconds ();
-			Position += velocity * delta.AsSeconds ();
+			Velocity += Acceleration * delta.AsSeconds ();
+			Graphics.Position += Velocity * delta.AsSeconds ();
 		}
 
 		/// <summary>
@@ -130,7 +134,7 @@ namespace GETIMFISP
 		void FixName()
 		{
 			if (Name == "")
-				Name = $"Object ({srcObject.ObjectType}) @ {X}, {Y}";
+				Name = $"Object ({SrcObject.ObjectType}) @ {Graphics.Position.X}, {Graphics.Position.Y}";
 		}
 
 		/// <summary>
@@ -147,7 +151,7 @@ namespace GETIMFISP
 			UpdateBBox ();
 
 			// Update graphics
-			graphics.Update (delta);
+			Graphics.Update (delta);
 		}
 
 		/// <summary>
@@ -158,7 +162,9 @@ namespace GETIMFISP
 		public virtual void Draw(RenderTarget target, RenderStates states)
 		{
 			if (UseBuiltinRenderer && Visible)
-				target.Draw (graphics, states);
+			{
+				target.Draw (Graphics, states);
+			}
 		}
 	}
 }

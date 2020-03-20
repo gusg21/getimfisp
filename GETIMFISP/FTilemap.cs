@@ -1,20 +1,25 @@
 ﻿using SFML.Graphics;
+using System.Collections.Generic;
 using TiledSharp;
 
 namespace GETIMFISP
 {
 	public class FTilemap : FActor
 	{
+		TmxMap map;
 		TmxLayer layer;
-		FTileset tileset;
+		FTilesetManager tilesets;
+		Color color;
 
-		public FTilemap(TmxLayer layer, FTileset tileset, int depth)
+		public FTilemap(TmxMap map, TmxLayer layer, FTilesetManager tilesets, int depth)
 		{
+			this.map = map;
 			this.layer = layer;
-			this.tileset = tileset;
+			this.tilesets = tilesets;
 
 			Visible = layer.Visible;
 			Name = "Tilemap";
+			color = new Color (255, 255, 255, (byte) (layer.Opacity * 255));
 		}
 
 		public override void OnGraphicsReady()
@@ -42,7 +47,8 @@ namespace GETIMFISP
 			{
 				if (tile.Gid > 0)
 				{
-					tileset.DrawTile (tile.Gid - 1, tile.X * tileset.TileWidth, tile.Y * tileset.TileHeight, target, states);
+					FTileset tileset = tilesets.GetTilesetWithGid (tile.Gid);
+					tileset.DrawTile (tile.Gid - tileset.Gid, tile.X * map.TileWidth, tile.Y * map.TileHeight, color, target, states);
 				}
 			}
 		}

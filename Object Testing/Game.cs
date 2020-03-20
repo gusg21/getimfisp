@@ -1,9 +1,11 @@
 ﻿using GETIMFISP;
 using Glide;
+using IronWren;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using System;
+using System.IO;
 
 namespace SFMLGame
 {
@@ -33,6 +35,8 @@ namespace SFMLGame
 	public class Player : FActor
 	{
 		Tween tween;
+		WrenVM wren;
+		string script;
 
 		public override void OnGraphicsReady()
 		{
@@ -41,13 +45,20 @@ namespace SFMLGame
 			// Load an animation of ABC
 			graphics.AddAnimation ("Animation1", new Texture [] { new Texture("Data/images/object1.png"), new Texture ("Data/images/object2.png"), new Texture ("Data/images/object3.png"), });
 			graphics.SwitchAnimation ("Animation1");
+			graphics.Scale = new Vector2f (20, 1);
 
 			Clicked += Player_Clicked;
 			Game.window.KeyPressed += Window_KeyPressed;
-
-			graphics.Scale = new Vector2f(20, 1);
-
+			
 			Game.camera.Target (Position);
+
+			script = File.ReadAllText ("Data/" + srcObject.Properties ["clicked"]);
+
+			WrenConfig config = new WrenConfig ();
+			config.Write += (vm, text) => Console.Write (text);
+			config.Error += (type, module, line, message) => Console.WriteLine ($"Error [{type}] in module [{module}] at line {line}:{Environment.NewLine}{message}");
+
+			wren = new WrenVM (config);
 		}
 
 		private void Window_KeyPressed(object sender, KeyEventArgs e)
@@ -61,6 +72,14 @@ namespace SFMLGame
 
 		private void Player_Clicked(object sender, MouseButtonEventArgs e)
 		{
+			WrenInterpretResult result = wren.Interpret (script);
+			WrenFunctionHandle testHandle = wren.MakeCallHandle ("test()");
+			wren.Call (testHandle);
+			testHandle.Release ();
+
+			if (tween != null && tween.Completion != 0 && tween.Completion != 1)
+				return;
+
 			tween = Game.tweener.Tween (this, new { X = 20, RotationDegrees = RotationDegrees + 45 }, 1);
 			tween.Ease (Ease.QuadInOut);
 			tween.Completed += Tween_Completed;

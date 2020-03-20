@@ -16,7 +16,7 @@ namespace GETIMFISP
 		public List<Texture> frames;
 		public int NumOfFrames { get { return frames.Count; } }
 		public int fps = 2;
-		public int CurrentFrame { get { return (int) Math.Floor (currentPlaytime * fps % NumOfFrames); } }
+		public int CurrentFrame { get { return (int) Math.Floor ((currentPlaytime * fps) % NumOfFrames); } }
 		public Texture CurrentTexture { get { return frames[CurrentFrame]; } }
 		public bool Playing = false;
 

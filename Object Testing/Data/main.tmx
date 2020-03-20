@@ -90,7 +90,11 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="5" type="Player" gid="3" x="170" y="86" width="16" height="16"/>
+  <object id="5" name="Player" type="Player" gid="3" x="170" y="86" width="16" height="16">
+   <properties>
+    <property name="clicked" type="file" value="scripts/clicked.wren"/>
+   </properties>
+  </object>
   <object id="7" name="Game Controller" type="Controller" x="-73" y="-68">
    <point/>
   </object>

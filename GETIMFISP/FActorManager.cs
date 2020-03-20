@@ -160,18 +160,7 @@ namespace GETIMFISP
 		public void SortByDepth()
 		{
 			sortedActors = new List<FActor> (actors.Values);
-			sortedActors.Sort ((FActor a, FActor b) => {
-				System.Console.WriteLine ($"{a.Depth} ({a.Name}) compared w/ {b.Depth} ({b.Name})");
-				return a.Depth.CompareTo (b.Depth);
-			});
-			if (sortedActors.Count != 0)
-			{
-				System.Console.WriteLine ($"Sorted actors, first depth: {sortedActors [0].Depth}");
-			}
-			else
-			{
-				System.Console.WriteLine ("No sorted actors.");
-			}
+			sortedActors.Sort ((FActor a, FActor b) => { return a.Depth.CompareTo (b.Depth); });
 		}
 
 		/// <summary>

@@ -12,6 +12,7 @@ namespace GETIMFISP
 		Texture tilesetTex;
 		Sprite tilesetSprite;
 
+		public int Gid { get { return tileset.FirstGid; } }
 		public int TileWidth { get { return tileset.TileWidth; } }
 		public int TileHeight { get { return tileset.TileHeight; } }
 
@@ -33,10 +34,11 @@ namespace GETIMFISP
 			return new IntRect (localTileId % tilesWide * tileWidth, (int) Math.Floor ((double) localTileId / tilesWide) * tileHeight, tileWidth, tileHeight);
 		}
 
-		public void DrawTile(int localTileId, int x, int y, RenderTarget target, RenderStates states)
+		public void DrawTile(int localTileId, int x, int y, Color color, RenderTarget target, RenderStates states)
 		{
 			tilesetSprite.Position = new Vector2f (x, y);
 			tilesetSprite.TextureRect = GetTile (localTileId);
+			tilesetSprite.Color = color;
 			target.Draw (tilesetSprite, states);
 		}
 	}

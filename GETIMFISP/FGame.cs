@@ -44,12 +44,30 @@ namespace GETIMFISP
 		// Background color
 		public Color backgroundColor = new Color (33, 33, 34);
 
-		public FGame(string startingMap)
+		public FGame(string mapPath, FWindowSettings settings)
 		{
-			map = new TmxMap (startingMap);
+			map = new TmxMap (mapPath);
+			windowSettings = settings;
+			Construct ();
+		}
+
+		public FGame(string mapPath)
+		{
+			map = new TmxMap (mapPath);
+			Construct ();
+		}
+
+		public FGame()
+		{
+			Construct ();
+		}
+
+		void Construct()
+		{
 			ActorTypes = new Dictionary<string, Type> ();
 			ActorManager = new FActorManager (this);
 			tweener = new Tweener ();
+			camera = new FCamera (new Vector2f());
 		}
 
 		/// <summary>
@@ -109,23 +127,29 @@ namespace GETIMFISP
 					// if the object's type isn't empty try to load it
 					if (obj.Type != "")
 						actor = (FActor) Activator.CreateInstance (ActorTypes [obj.Type]);
-
+					
 					// Custom functionality based on source tiled type
 					switch (obj.ObjectType)
 					{
 						case TmxObjectType.Tile:
 							// Loading tile image
 							TmxTileset tileset = map.GetTilesetWithGid (obj.Tile.Gid);
-							actor.graphics = new FSprite(tileset.GetTileTex (obj.Tile.Gid));
+							actor.Graphics = new FSprite(tileset.GetTileTex (obj.Tile.Gid));
 							break;
+						
 						case TmxObjectType.Basic:
+							actor.BBox.Width = (float) obj.Width;
+							actor.BBox.Height = (float) obj.Height;
+							actor.CalcBBoxOffGraphics = false;
 							break;
+
+						// implement more types...
 					}
 
 					// Universal edits
-					actor.Position = new Vector2f ((float) obj.X, (float) obj.Y);
 					actor.Name = obj.Name;
-					actor.srcObject = obj;
+					actor.SrcObject = obj;
+					actor.Graphics.Position = new Vector2f ((float) actor.SrcObject.X, (float) actor.SrcObject.Y);
 
 					// Add it to the manager
 					ActorManager.Add (actor);
@@ -138,7 +162,7 @@ namespace GETIMFISP
 
 					Console.WriteLine ("    Loaded successfully!");
 
-					// keep track of the object we actually loaded
+					// keep track of the object count we actually loaded
 					successCount++;
 				}
 			}
@@ -155,12 +179,17 @@ namespace GETIMFISP
 			{
 				Console.WriteLine ($"Adding Tilemap for layer: {layer.Name}");
 
-				FTilemap mapActor = new FTilemap (layer, new FTileset (map.Tilesets [0]), -1 - depth);
+				FTilemap mapActor = new FTilemap (map, layer, new FTilesetManager(map.Tilesets), -1 - depth);
 				ActorManager.Add (mapActor);
 				mapActor.OnGraphicsReady ();
 
 				depth++;
 			}
+		}
+
+		public void CreateCamera()
+		{
+			camera.Resize (window.Size.X, window.Size.Y);
 		}
 
 		public void CreateWindow()
@@ -173,9 +202,8 @@ namespace GETIMFISP
 			VideoMode mode = (IsFullscreen ? VideoMode.DesktopMode : WindowMode);
 			Console.WriteLine (mode);
 			window = new RenderWindow (mode, WindowTitle, WindowStyle);
-			
-			camera = new FCamera (window.Size.To2f ()); // must be set up with window
-			camera.Resize (window.Size.X, window.Size.Y);
+
+			CreateCamera ();
 		}
 
 		/// <summary>
@@ -183,7 +211,7 @@ namespace GETIMFISP
 		/// </summary>
 		public void Run()
 		{
-			// Window create (and camera)
+			// Window (and camera) creation
 			CreateWindow ();
 			RenderStates states = RenderStates.Default;
 
@@ -191,10 +219,13 @@ namespace GETIMFISP
 			window.Closed += (sender, e) => { Console.WriteLine ("Closing window..."); ((Window) sender).Close (); };
 			window.Resized += (sender, e) => { camera.Resize (e.Width, e.Height); };
 
-			// Load the objects into the game
-			LoadActors ();
-			// Load the tilemap
-			LoadTilemaps ();
+			if (map != null)
+			{
+				// Load the objects into the game
+				LoadActors ();
+				// Load the tilemap
+				LoadTilemaps ();
+			}
 
 			gameTime = new FGameTime ();
 
@@ -220,6 +251,11 @@ namespace GETIMFISP
 				// record the frame time
 				gameTime.Tick ();
 			}
+		}
+
+		public void Stop()
+		{
+			window.Close ();
 		}
 	}
 }

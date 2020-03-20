@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿using GETIMFISP.Extensions;
+using SFML.Graphics;
 using SFML.System;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,11 @@ namespace GETIMFISP
 		public static FSprite NULL_SPRITE = new FSprite("Internal Data/null.png");
 
 		Dictionary<string, FAnimation> animations;
-		public string currentAnimationName = null;
-		public FAnimation CurrentAnimation { get { return animations [currentAnimationName]; } }
-		public bool IsAnimationPlaying { get { return currentAnimationName != null; } }
+		public string CurrentAnimationName = null;
+		public FAnimation CurrentAnimation { get { return animations [CurrentAnimationName]; } }
+		public bool IsAnimationPlaying { get { return CurrentAnimationName != null; } }
+
+		public bool Visible = true;
 
 		public event EventHandler AnimationPlayed;
 
@@ -49,7 +52,7 @@ namespace GETIMFISP
 		public FSprite(Dictionary<string, FAnimation> animations)
 		{
 			this.animations = animations;
-			currentAnimationName = animations.First ().Key;
+			CurrentAnimationName = animations.First ().Key;
 			Texture = CurrentAnimation.CurrentTexture;
 		}
 
@@ -63,14 +66,20 @@ namespace GETIMFISP
 		
 		void FromTex(Texture tex)
 		{
-			currentAnimationName = "Still";
+			CurrentAnimationName = "Still";
 			animations = new Dictionary<string, FAnimation> ();
 			AddAnimation ("Still", new FAnimation (new Texture [] { tex }));
 			PlayAnimation ("Still");
 		}
 
+		public void CalcTextureRect()
+		{
+			TextureRect = new IntRect (new Vector2i(), CurrentAnimation.CurrentTexture.Size.To2i());
+		}
+
 		public void CenterOrigin()
 		{
+			Origin = (Texture.Size.To2f () / 2f);
 		}
 
 		/// <summary>
@@ -99,11 +108,13 @@ namespace GETIMFISP
 		/// <param name="animationName">The animation name to play</param>
 		public void PlayAnimation(string animationName)
 		{
-			currentAnimationName = animationName;
+			CurrentAnimationName = animationName;
 			CurrentAnimation.Playing = true;
 			Texture = CurrentAnimation.CurrentTexture;
 
 			AnimationPlayed?.Invoke (this, new EventArgs ());
+
+			CalcTextureRect ();
 		}
 
 		/// <summary>
@@ -112,7 +123,7 @@ namespace GETIMFISP
 		/// <param name="animationName">The animation to switch to</param>
 		public void SwitchAnimation(string animationName)
 		{
-			currentAnimationName = animationName;
+			CurrentAnimationName = animationName;
 			Texture = CurrentAnimation.CurrentTexture;
 
 			AnimationPlayed?.Invoke (this, new EventArgs ());
@@ -163,6 +174,7 @@ namespace GETIMFISP
 				CurrentAnimation.Update (delta.AsSeconds ());
 			}
 
+			Color = new Color (Color.R, Color.G, Color.B, Visible ? Color.A : byte.MinValue);
 			Texture = CurrentAnimation.CurrentTexture;
 		}
 	}
