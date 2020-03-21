@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using SFML.Window;
 
-namespace GETIMFISP
+namespace GETIMFISP.Extensions
 {
 	public static class FloatMath
 	{

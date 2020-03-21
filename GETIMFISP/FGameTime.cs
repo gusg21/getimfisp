@@ -15,21 +15,24 @@ namespace GETIMFISP
 		/// <summary>
 		/// The time since last frame
 		/// </summary>
-		public Time deltaTime;
+		public Time Delta;
 		/// <summary>
 		/// The total time the game has been running
 		/// </summary>
-		public Time totalElapsedTime;
+		public Time Elapsed;
 		/// <summary>
 		/// The internal clock to keep track of time with
 		/// </summary>
-		public Clock gameClock;
+		public Clock GameClock;
 
+		/// <summary>
+		/// Create a GameTime with default constructors
+		/// </summary>
 		public FGameTime()
 		{
-			deltaTime = new Time ();
-			totalElapsedTime = new Time ();
-			gameClock = new Clock ();
+			Delta = new Time ();
+			Elapsed = new Time ();
+			GameClock = new Clock ();
 		}
 
 		/// <summary>
@@ -38,7 +41,7 @@ namespace GETIMFISP
 		/// <returns></returns>
 		public float AsSeconds()
 		{
-			return deltaTime.AsSeconds ();
+			return Delta.AsSeconds ();
 		}
 
 		/// <summary>
@@ -46,8 +49,8 @@ namespace GETIMFISP
 		/// </summary>
 		public void Tick()
 		{
-			deltaTime = gameClock.Restart ();
-			totalElapsedTime += deltaTime;
+			Delta = GameClock.Restart ();
+			Elapsed += Delta;
 		}
 	}
 }

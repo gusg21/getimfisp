@@ -22,6 +22,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+    <DocumentationFile>bin\Debug\GETIMFISP.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -80,7 +83,6 @@
     <Compile Include="Glide\Tween.cs" />
     <Compile Include="Glide\Tweener.cs" />
     <Compile Include="Extensions\VectorExtensions.cs" />
-    <Compile Include="Extensions\XnaVectorExtensions.cs" />
     <Compile Include="FActor.cs" />
     <Compile Include="FActorManager.cs" />
     <Compile Include="FAnimation.cs" />

@@ -6,10 +6,13 @@ using System.Collections.Generic;
 namespace GETIMFISP
 {
 	/// <summary>
-	/// A class to distribute Update() and Draw() calls amongst children FActors
+	/// A class to distribute Update() and Draw() calls amongst children FActors, and to make sure they're drawn in the right order
 	/// </summary>
 	public class FActorManager
 	{
+		/// <summary>
+		/// The Game this is a child of
+		/// </summary>
 		public FGame Game;
 
 		Dictionary<int, FActor> actors; // internal actor holder (id -> actor)
@@ -17,6 +20,10 @@ namespace GETIMFISP
 		List<int> removalQueue; // the actors to remove
 		int nextId; // the next id to be given out
 
+		/// <summary>
+		/// Create the FActorManager, passing the FGame it's a child of
+		/// </summary>
+		/// <param name="game"></param>
 		public FActorManager(FGame game)
 		{
 			Game = game;
@@ -152,6 +159,15 @@ namespace GETIMFISP
 			}
 
 			return null;
+		}
+
+		/// <summary>
+		/// Return all actors currently
+		/// </summary>
+		/// <returns></returns>
+		public FActor[] GetActors()
+		{
+			return sortedActors.ToArray ();
 		}
 		
 		/// <summary>

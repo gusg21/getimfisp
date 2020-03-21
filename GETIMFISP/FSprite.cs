@@ -14,15 +14,28 @@ namespace GETIMFISP
 	/// </summary>
 	public class FSprite : Sprite
 	{
-		public static FSprite NULL_SPRITE = new FSprite("Internal Data/null.png");
-
 		Dictionary<string, FAnimation> animations;
+		/// <summary>
+		/// Currently playing animation name
+		/// </summary>
 		public string CurrentAnimationName = null;
+		/// <summary>
+		/// The current FAnimation object
+		/// </summary>
 		public FAnimation CurrentAnimation { get { return animations [CurrentAnimationName]; } }
+		/// <summary>
+		/// Is the current animation playing?
+		/// </summary>
 		public bool IsAnimationPlaying { get { return CurrentAnimationName != null; } }
 
+		/// <summary>
+		/// Is this sprite visible?
+		/// </summary>
 		public bool Visible = true;
 
+		/// <summary>
+		/// Called when an animation is played
+		/// </summary>
 		public event EventHandler AnimationPlayed;
 
 		/// <summary>
@@ -62,6 +75,7 @@ namespace GETIMFISP
 		public FSprite()
 		{
 			animations = new Dictionary<string, FAnimation> ();
+			FromTex (new Texture ("Internal Data/null.png"));
 		}
 		
 		void FromTex(Texture tex)
@@ -72,11 +86,17 @@ namespace GETIMFISP
 			PlayAnimation ("Still");
 		}
 
+		/// <summary>
+		/// Change the TextureRect to be the size of the animation
+		/// </summary>
 		public void CalcTextureRect()
 		{
 			TextureRect = new IntRect (new Vector2i(), CurrentAnimation.CurrentTexture.Size.To2i());
 		}
 
+		/// <summary>
+		/// Set the origin of the sprite to be the center of the texture
+		/// </summary>
 		public void CenterOrigin()
 		{
 			Origin = (Texture.Size.To2f () / 2f);
@@ -108,13 +128,11 @@ namespace GETIMFISP
 		/// <param name="animationName">The animation name to play</param>
 		public void PlayAnimation(string animationName)
 		{
-			CurrentAnimationName = animationName;
+			SwitchAnimation (animationName);
+
 			CurrentAnimation.Playing = true;
-			Texture = CurrentAnimation.CurrentTexture;
 
 			AnimationPlayed?.Invoke (this, new EventArgs ());
-
-			CalcTextureRect ();
 		}
 
 		/// <summary>
@@ -126,7 +144,7 @@ namespace GETIMFISP
 			CurrentAnimationName = animationName;
 			Texture = CurrentAnimation.CurrentTexture;
 
-			AnimationPlayed?.Invoke (this, new EventArgs ());
+			CalcTextureRect ();
 		}
 
 		/// <summary>
@@ -174,7 +192,7 @@ namespace GETIMFISP
 				CurrentAnimation.Update (delta.AsSeconds ());
 			}
 
-			Color = new Color (Color.R, Color.G, Color.B, Visible ? Color.A : byte.MinValue);
+			Color = new Color (Color.R, Color.G, Color.B, Visible ? Color.A : (byte) 0);
 			Texture = CurrentAnimation.CurrentTexture;
 		}
 	}

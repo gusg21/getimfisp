@@ -9,6 +9,9 @@ using SFML.System;
 
 namespace GETIMFISP.Extensions
 {
+	/// <summary>
+	/// Extensions for the Vector2f class
+	/// </summary>
 	public static class VectorExtensions
 	{
 		public static float LengthSquared(this Vector2f v)

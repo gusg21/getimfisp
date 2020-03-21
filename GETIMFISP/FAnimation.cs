@@ -13,18 +13,43 @@ namespace GETIMFISP
 	public class FAnimation
 	{
 		float currentPlaytime = 0f;
+
+		/// <summary>
+		/// The individual Textures that make up the animation
+		/// </summary>
 		public List<Texture> frames;
+		/// <summary>
+		/// The number of frames in the animation
+		/// </summary>
 		public int NumOfFrames { get { return frames.Count; } }
+		/// <summary>
+		/// The amount of frames to show per second
+		/// </summary>
 		public int fps = 2;
+		/// <summary>
+		/// The current frame NUMBER
+		/// </summary>
 		public int CurrentFrame { get { return (int) Math.Floor ((currentPlaytime * fps) % NumOfFrames); } }
+		/// <summary>
+		/// The current frame texture
+		/// </summary>
 		public Texture CurrentTexture { get { return frames[CurrentFrame]; } }
+		/// <summary>
+		/// Is the animation playing?
+		/// </summary>
 		public bool Playing = false;
 
+		/// <summary>
+		/// Called when the animation frame change
+		/// </summary>
 		public event EventHandler FrameChanged;
+		/// <summary>
+		/// Called when the animation loops around
+		/// </summary>
 		public event EventHandler Looped;
 
 		/// <summary>
-		/// Create this animation from a List<> of textures.
+		/// Create this animation from a List of textures.
 		/// </summary>
 		/// <param name="frames"></param>
 		public FAnimation(List<Texture> frames)

@@ -21,42 +21,63 @@ namespace GETIMFISP
 		// The Tiled map object
 		TmxMap map;
 		// All the registered types of actors
-		Dictionary<string, Type> ActorTypes;
-		// The actor manager
+		Dictionary<string, Type> actorTypes;
+		/// <summary>
+		/// The actor manager
+		/// </summary>
 		public FActorManager ActorManager { get; private set; }
-		// The GameTime struct to keep track of all time-related things
-		public FGameTime gameTime;
-		// The Global object used for tweening
-		public Tweener tweener;
-		// The current camera
-		public FCamera camera;
+		/// <summary>
+		/// The object that keeps track of time related things
+		/// </summary>
+		public FGameTime GameTime;
+		/// <summary>
+		/// Used to create a tween
+		/// </summary>
+		public Tweener Tweener;
+		/// <summary>
+		/// The current camera
+		/// </summary>
+		public FCamera Camera;
 
 		// RENDERING
-		// The window the game renders to.
-		public RenderWindow window;
-		// The information about the window
-		public FWindowSettings windowSettings = FWindowSettings.SIMPLE_WINDOWED;
-		// Convenience setters/getters for WindowInfo
-		public string WindowTitle { get { return windowSettings.title; } set { windowSettings.title = value; } }
-		public VideoMode WindowMode { get { return windowSettings.windowMode; } set { windowSettings.windowMode = value; } }
-		public Styles WindowStyle { get { return windowSettings.style; } set { windowSettings.style = value; } }
-		public bool IsFullscreen { get; private set; }
-		// Background color
-		public Color backgroundColor = new Color (33, 33, 34);
+		/// <summary>
+		/// The window the game draws to.
+		/// </summary>
+		public RenderWindow Window;
+		/// <summary>
+		/// Set up info for the window
+		/// </summary>
+		public FWindowSettings WindowSettings = FWindowSettings.SIMPLE_WINDOWED;
+		/// <summary>
+		/// The default background color of the window.
+		/// </summary>
+		public Color ClearColor = new Color (33, 33, 34);
 
+		/// <summary>
+		/// Create the Game from a Map and window settings
+		/// </summary>
+		/// <param name="mapPath">the path to the Tiled map</param>
+		/// <param name="settings">the window settings to use</param>
 		public FGame(string mapPath, FWindowSettings settings)
 		{
 			map = new TmxMap (mapPath);
-			windowSettings = settings;
+			WindowSettings = settings;
 			Construct ();
 		}
 
+		/// <summary>
+		/// Create the game from a map
+		/// </summary>
+		/// <param name="mapPath">the path to the Tiled map</param>
 		public FGame(string mapPath)
 		{
 			map = new TmxMap (mapPath);
 			Construct ();
 		}
 
+		/// <summary>
+		/// Create an empty game, a blank canvas if you will.
+		/// </summary>
 		public FGame()
 		{
 			Construct ();
@@ -64,10 +85,10 @@ namespace GETIMFISP
 
 		void Construct()
 		{
-			ActorTypes = new Dictionary<string, Type> ();
+			actorTypes = new Dictionary<string, Type> ();
 			ActorManager = new FActorManager (this);
-			tweener = new Tweener ();
-			camera = new FCamera (new Vector2f());
+			Tweener = new Tweener ();
+			Camera = new FCamera (this);
 		}
 
 		/// <summary>
@@ -77,7 +98,7 @@ namespace GETIMFISP
 		public void AddActorType<T>() where T : FActor
 		{
 			Console.WriteLine ("Registered script: " + typeof (T).Name);
-			ActorTypes.Add (typeof (T).Name, typeof (T));
+			actorTypes.Add (typeof (T).Name, typeof (T));
 		}
 
 		/// <summary>
@@ -88,14 +109,7 @@ namespace GETIMFISP
 		public void AddActorType<T>(string typeName) where T : FActor
 		{
 			Console.WriteLine ($"Registered script with overridden name: {typeName}");
-			ActorTypes.Add (typeName, typeof (T));
-		}
-
-		public void ToggleFullscreen()
-		{
-			WindowStyle ^= Styles.Fullscreen;
-			IsFullscreen = !IsFullscreen;
-			CreateWindow ();
+			actorTypes.Add (typeName, typeof (T));
 		}
 
 		void LoadActors()
@@ -115,7 +129,7 @@ namespace GETIMFISP
 						Console.WriteLine ("    W: No type provided.");
 					}
 
-					if (!ActorTypes.ContainsKey(obj.Type) && obj.Type != "") // Is the type registered?
+					if (!actorTypes.ContainsKey(obj.Type) && obj.Type != "") // Is the type registered?
 					{
 						Console.WriteLine ($"    E: Unknown type: {obj.Type}");
 						continue;
@@ -126,7 +140,7 @@ namespace GETIMFISP
 					
 					// if the object's type isn't empty try to load it
 					if (obj.Type != "")
-						actor = (FActor) Activator.CreateInstance (ActorTypes [obj.Type]);
+						actor = (FActor) Activator.CreateInstance (actorTypes [obj.Type]);
 					
 					// Custom functionality based on source tiled type
 					switch (obj.ObjectType)
@@ -148,8 +162,10 @@ namespace GETIMFISP
 
 					// Universal edits
 					actor.Name = obj.Name;
+					actor.Visible = obj.Visible;
 					actor.SrcObject = obj;
 					actor.Graphics.Position = new Vector2f ((float) actor.SrcObject.X, (float) actor.SrcObject.Y);
+					Console.WriteLine ($"{actor.Graphics.Position}");
 
 					// Add it to the manager
 					ActorManager.Add (actor);
@@ -179,31 +195,12 @@ namespace GETIMFISP
 			{
 				Console.WriteLine ($"Adding Tilemap for layer: {layer.Name}");
 
-				FTilemap mapActor = new FTilemap (map, layer, new FTilesetManager(map.Tilesets), -1 - depth);
+				FTilemap mapActor = new FTilemap (map, layer, new FTilesetManager (map.Tilesets), -1 - depth);
 				ActorManager.Add (mapActor);
 				mapActor.OnGraphicsReady ();
 
 				depth++;
 			}
-		}
-
-		public void CreateCamera()
-		{
-			camera.Resize (window.Size.X, window.Size.Y);
-		}
-
-		public void CreateWindow()
-		{
-			if (window != null && window.IsOpen)
-			{
-				window.Close ();
-			}
-
-			VideoMode mode = (IsFullscreen ? VideoMode.DesktopMode : WindowMode);
-			Console.WriteLine (mode);
-			window = new RenderWindow (mode, WindowTitle, WindowStyle);
-
-			CreateCamera ();
 		}
 
 		/// <summary>
@@ -212,50 +209,50 @@ namespace GETIMFISP
 		public void Run()
 		{
 			// Window (and camera) creation
-			CreateWindow ();
+			Window = new RenderWindow (WindowSettings.WindowMode, WindowSettings.Title, WindowSettings.Style);
 			RenderStates states = RenderStates.Default;
 
 			// Window close event
-			window.Closed += (sender, e) => { Console.WriteLine ("Closing window..."); ((Window) sender).Close (); };
-			window.Resized += (sender, e) => { camera.Resize (e.Width, e.Height); };
+			Window.Closed += (sender, e) => { Console.WriteLine ("Closing window..."); ((Window) sender).Close (); };
 
 			if (map != null)
 			{
 				// Load the objects into the game
 				LoadActors ();
+
 				// Load the tilemap
 				LoadTilemaps ();
 			}
-
-			gameTime = new FGameTime ();
+			
+			GameTime = new FGameTime ();
 
 			// Main game loop
-			while (window.IsOpen)
+			while (Window.IsOpen)
 			{
 				// Global data updates
-				ActorManager.Update (gameTime);
-				tweener.Update (gameTime);
-				camera.Update (gameTime);
+				ActorManager.Update (GameTime);
+				Tweener.Update (GameTime);
+				Camera.Update (GameTime);
 
 				// Window events update
-				window.DispatchEvents ();
+				Window.DispatchEvents ();
 
 				// Rendering
-				window.Clear (backgroundColor);
-				window.SetView (camera.GetView());
-				ActorManager.Draw (window, states);
+				Window.Clear (ClearColor);
+				Window.SetView (Camera.GetView());
+				ActorManager.Draw (Window, states);
 				
 				// Update the screen
-				window.Display ();
+				Window.Display ();
 
 				// record the frame time
-				gameTime.Tick ();
+				GameTime.Tick ();
 			}
 		}
 
 		public void Stop()
 		{
-			window.Close ();
+			Window.Close ();
 		}
 	}
 }

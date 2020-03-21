@@ -12,59 +12,96 @@ namespace GETIMFISP
 	/// </summary>
 	public class FActor : Drawable
 	{
-		// The id of the actor
+		/// <summary>
+		/// The unique ID of the actor to its FActorManager (see Manager)
+		/// </summary>
 		public int ID { get; set; }
-		// The name of the actor
+		/// <summary>
+		/// The name (usually from Tiled) of the actor
+		/// </summary>
 		public string Name { get; set; }
-		// The manager of the actor
+		/// <summary>
+		/// The FActorManager this is a child of
+		/// </summary>
 		public FActorManager Manager;
-		// The game of the manager (for convenience)
+		/// <summary>
+		/// The Game that the Manager is a child of (same as Manager.Game)
+		/// </summary>
 		public FGame Game { get { return Manager.Game; } }
-		
-		public float RotationDegrees { get { return Graphics.Rotation; } set { Graphics.Rotation = value; } }
-		public float RotationRadians { get { return Graphics.Rotation / 57.295779513f; } set { Graphics.Rotation = value * 57.295779513f; } }
 
 		// The render order
 		private int depth = 0;
+		/// <summary>
+		/// The order in which to render objects. Negative = behind
+		/// </summary>
 		public int Depth { get { return depth; } set { depth = value; Manager.SortByDepth (); } }
 
-		// Built-in motion
+		/// <summary>
+		/// Use the built-in motion system?
+		/// </summary>
 		public bool doBuiltInMotion = true;
+		/// <summary>
+		/// Built-in velocity. Only used if useBuiltInMotion = true
+		/// </summary>
 		public Vector2f Velocity = new Vector2f();
+		/// <summary>
+		/// Built-in acceleration. Only used if useBuiltInMotion = true
+		/// </summary>
 		public Vector2f Acceleration = new Vector2f ();
 
-		// The graphics of the sprite.
-		public FSprite Graphics = FSprite.NULL_SPRITE;
-		// Use the built-in renderer?
+		/// <summary>
+		/// The graphics of the sprite.
+		/// </summary>
+		public FSprite Graphics = new FSprite();
+		/// <summary>
+		/// Use the built-in renderer?
+		/// </summary>
 		public bool UseBuiltinRenderer { protected set; get; } = true;
-		// Visible?
+		/// <summary>
+		/// Is the sprite visible?
+		/// </summary>
 		public bool Visible { get { return Graphics.Visible; } set { Graphics.Visible = value; } }
 
-		// The 2d rectangle that represents the collider for the actor.
+		/// <summary>
+		/// The collision (bounding) box of the actor
+		/// </summary>
 		public FloatRect BBox = new FloatRect ();
+		/// <summary>
+		/// Use the graphics as basis for the bbox.
+		/// NOTE: position is still set automatically, but you can edit width + height.
+		/// </summary>
 		public bool CalcBBoxOffGraphics = true;
 
-		// The tiled object this object is based off
+		/// <summary>
+		/// The Tiled object this was created from.
+		/// </summary>
 		public TmxObject SrcObject;
 
-		// Click Event
+		/// <summary>
+		/// Called when this object is clicked
+		/// </summary>
 		public event EventHandler<MouseButtonEventArgs> Clicked;
 		private void ClickCheck(object sender, MouseButtonEventArgs e)
 		{
-			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
+			Vector2f converted = Game.Window.MapPixelToCoords (new Vector2i (e.X, e.Y));
 			if (BBox.Contains(converted))
 			{
 				Clicked?.Invoke (this, e);
 			}
 		}
 
-		// Mouse Over events
+		/// <summary>
+		/// Is the mouse currently over the bbox?
+		/// </summary>
 		public bool MouseOver = false;
 
+		/// <summary>
+		/// Called when the mouse enters the bbox
+		/// </summary>
 		public event EventHandler<MouseMoveEventArgs> MouseEntered;
 		private void MouseEnteredCheck(object sender, MouseMoveEventArgs e)
 		{
-			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
+			Vector2f converted = Game.Window.MapPixelToCoords (new Vector2i (e.X, e.Y));
 			if (BBox.Contains (converted))
 			{
 				MouseOver = true;
@@ -72,10 +109,13 @@ namespace GETIMFISP
 			}
 		}
 
+		/// <summary>
+		/// Called when the mouse leaves the bbox
+		/// </summary>
 		public event EventHandler<MouseMoveEventArgs> MouseLeft;
 		private void MouseLeftCheck(object sender, MouseMoveEventArgs e)
 		{
-			Vector2f converted = Game.window.MapPixelToCoords (new Vector2i (e.X, e.Y));
+			Vector2f converted = Game.Window.MapPixelToCoords (new Vector2i (e.X, e.Y));
 			if (BBox.Contains (converted))
 			{
 				MouseOver = false;
@@ -92,12 +132,15 @@ namespace GETIMFISP
 		{
 			UpdateBBox ();
 
-			Game.window.MouseButtonReleased += ClickCheck;
-			Game.window.MouseMoved += MouseEnteredCheck;
+			Game.Window.MouseButtonReleased += ClickCheck;
+			Game.Window.MouseMoved += MouseEnteredCheck;
 
 			FixName ();
 		}
 
+		/// <summary>
+		/// Update the bbox. If no graphics the box will be zeroed, and if CalcBBoxOffGraphics is false the box will only contain position and the use has to define the size. Accounts for Graphics.Scale.
+		/// </summary>
 		public void UpdateBBox()
 		{
 			if (Graphics.Texture != null)
