@@ -63,7 +63,7 @@ namespace GETIMFISP
 		/// <param name="y">y position to draw at</param>
 		/// <param name="color">the "tint" (used for alpha/opacity)</param>
 		/// <param name="target">what to render to</param>
-		/// <param name="states"></param>
+		/// <param name="states">renderer settings</param>
 		public void DrawTile(int localTileId, int x, int y, Color color, RenderTarget target, RenderStates states)
 		{
 			tilesetSprite.Position = new Vector2f (x, y);

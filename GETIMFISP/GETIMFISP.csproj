@@ -74,6 +74,7 @@
     <Compile Include="Extensions\TmxMapExtensions.cs" />
     <Compile Include="Extensions\TmxTilesetExtenstions.cs" />
     <Compile Include="FCamera.cs" />
+    <Compile Include="Extensions\FloatMath.cs" />
     <Compile Include="FTilemap.cs" />
     <Compile Include="FTileset.cs" />
     <Compile Include="FTilesetManager.cs" />
@@ -87,11 +88,8 @@
     <Compile Include="FActorManager.cs" />
     <Compile Include="FAnimation.cs" />
     <Compile Include="FGame.cs" />
-    <Compile Include="FGamepad.cs" />
-    <Compile Include="FInput.cs" />
     <Compile Include="FSprite.cs" />
     <Compile Include="FGameTime.cs" />
-    <Compile Include="FloatMath.cs" />
     <Compile Include="FWindowSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

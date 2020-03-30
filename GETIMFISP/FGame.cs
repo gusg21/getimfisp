@@ -58,20 +58,9 @@ namespace GETIMFISP
 		/// </summary>
 		/// <param name="mapPath">the path to the Tiled map</param>
 		/// <param name="settings">the window settings to use</param>
-		public FGame(string mapPath, FWindowSettings settings)
+		public FGame(FWindowSettings settings)
 		{
-			map = new TmxMap (mapPath);
 			WindowSettings = settings;
-			Construct ();
-		}
-
-		/// <summary>
-		/// Create the game from a map
-		/// </summary>
-		/// <param name="mapPath">the path to the Tiled map</param>
-		public FGame(string mapPath)
-		{
-			map = new TmxMap (mapPath);
 			Construct ();
 		}
 
@@ -88,7 +77,13 @@ namespace GETIMFISP
 			actorTypes = new Dictionary<string, Type> ();
 			ActorManager = new FActorManager (this);
 			Tweener = new Tweener ();
-			Camera = new FCamera (this);
+			Camera = new FCamera ();
+
+			// Window (and camera) creation
+			Window = new RenderWindow (WindowSettings.WindowMode, WindowSettings.Title, WindowSettings.Style);
+
+			// Window close event
+			Window.Closed += (sender, e) => { Console.WriteLine ("Closing window..."); ((Window) sender).Close (); };
 		}
 
 		/// <summary>
@@ -110,6 +105,25 @@ namespace GETIMFISP
 		{
 			Console.WriteLine ($"Registered script with overridden name: {typeName}");
 			actorTypes.Add (typeName, typeof (T));
+		}
+
+		/// <summary>
+		/// Load a different Tiled map (level, menu, etc...)
+		/// </summary>
+		/// <param name="newMapPath"></param>
+		public void ChangeScene(string newMapPath)
+		{
+			// Create a new Tiled Map object (tmx = tiled)
+			map = new TmxMap (newMapPath);
+
+			// Kill all actors which are not marked as persistent
+			ActorManager.ClearNonPersistent ();
+
+			// Load the objects into the game
+			LoadActors ();
+
+			// Load the tilemap
+			LoadTilemaps ();
 		}
 
 		void LoadActors()
@@ -208,21 +222,9 @@ namespace GETIMFISP
 		/// </summary>
 		public void Run()
 		{
-			// Window (and camera) creation
-			Window = new RenderWindow (WindowSettings.WindowMode, WindowSettings.Title, WindowSettings.Style);
 			RenderStates states = RenderStates.Default;
 
-			// Window close event
-			Window.Closed += (sender, e) => { Console.WriteLine ("Closing window..."); ((Window) sender).Close (); };
-
-			if (map != null)
-			{
-				// Load the objects into the game
-				LoadActors ();
-
-				// Load the tilemap
-				LoadTilemaps ();
-			}
+			Camera.Initialize (this);
 			
 			GameTime = new FGameTime ();
 
@@ -250,6 +252,9 @@ namespace GETIMFISP
 			}
 		}
 
+		/// <summary>
+		/// Stop the game.
+		/// </summary>
 		public void Stop()
 		{
 			Window.Close ();

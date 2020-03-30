@@ -10,6 +10,8 @@ namespace GETIMFISP
 	/// </summary>
 	public class FActorManager
 	{
+		// TODO: Multiple Actor Managers?
+
 		/// <summary>
 		/// The Game this is a child of
 		/// </summary>
@@ -57,6 +59,7 @@ namespace GETIMFISP
 		{
 			if (actors.ContainsKey(id)) // Is that an actual ID we have?
 			{
+				actors [id].OnRemoved ();
 				actors [id].Manager = null;
 				actors.Remove (id);
 				return true;
@@ -177,6 +180,20 @@ namespace GETIMFISP
 		{
 			sortedActors = new List<FActor> (actors.Values);
 			sortedActors.Sort ((FActor a, FActor b) => { return a.Depth.CompareTo (b.Depth); });
+		}
+
+		/// <summary>
+		/// Get rid of all non-persistent actors when changing scenes.
+		/// </summary>
+		public void ClearNonPersistent()
+		{
+			foreach (FActor actor in sortedActors)
+			{
+				if (!actor.Persistent)
+				{
+					Remove (actor);
+				}
+			}
 		}
 
 		/// <summary>

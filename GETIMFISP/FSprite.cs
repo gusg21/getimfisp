@@ -27,16 +27,20 @@ namespace GETIMFISP
 		/// Is the current animation playing?
 		/// </summary>
 		public bool IsAnimationPlaying { get { return CurrentAnimationName != null; } }
+		/// <summary>
+		/// Called when an animation is played
+		/// </summary>
+		public event EventHandler AnimationPlayed;
+
+		/// <summary>
+		/// The x-coordinate of the sprite. Allows for easy tweening of a single axis.
+		/// </summary>
+		public float X { get { return Position.X; } set { Position = new Vector2f (value, Position.Y); } }
 
 		/// <summary>
 		/// Is this sprite visible?
 		/// </summary>
 		public bool Visible = true;
-
-		/// <summary>
-		/// Called when an animation is played
-		/// </summary>
-		public event EventHandler AnimationPlayed;
 
 		/// <summary>
 		/// Create a still sprite

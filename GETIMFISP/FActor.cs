@@ -19,7 +19,11 @@ namespace GETIMFISP
 		/// <summary>
 		/// The name (usually from Tiled) of the actor
 		/// </summary>
-		public string Name { get; set; }
+		public string Name;
+		/// <summary>
+		/// Whether the object will stay when the scene changes. An example would be a manager that controls player data across levels.
+		/// </summary>
+		public bool Persistent = false;
 		/// <summary>
 		/// The FActorManager this is a child of
 		/// </summary>
@@ -124,21 +128,6 @@ namespace GETIMFISP
 		}
 
 		/// <summary>
-		/// Run when the tiled map loader has finished setting up the `graphics` variable and the `srcObject` variable
-		/// 
-		/// Only useful in scripts that come from the Tile source type.
-		/// </summary>
-		public virtual void OnGraphicsReady()
-		{
-			UpdateBBox ();
-
-			Game.Window.MouseButtonReleased += ClickCheck;
-			Game.Window.MouseMoved += MouseEnteredCheck;
-
-			FixName ();
-		}
-
-		/// <summary>
 		/// Update the bbox. If no graphics the box will be zeroed, and if CalcBBoxOffGraphics is false the box will only contain position and the use has to define the size. Accounts for Graphics.Scale.
 		/// </summary>
 		public void UpdateBBox()
@@ -172,12 +161,41 @@ namespace GETIMFISP
 		}
 
 		/// <summary>
-		/// Fix the Name prop. if unset
+		/// Fix the Name property if anonymous.
 		/// </summary>
 		void FixName()
 		{
 			if (Name == "")
-				Name = $"Object ({SrcObject.ObjectType}) @ {Graphics.Position.X}, {Graphics.Position.Y}";
+				Name = $"Anonymous Object ({SrcObject.ObjectType})";
+		}
+
+
+		/// <summary>
+		/// Run when the tiled map loader has finished setting up the `graphics` variable and the `srcObject` variable
+		/// 
+		/// Only useful in scripts that come from the Tile source type.
+		/// </summary>
+		public virtual void OnGraphicsReady()
+		{
+			// Adjust the bounding box to the actor's graphics size
+			UpdateBBox ();
+
+			// Register hover events
+			Game.Window.MouseButtonReleased += ClickCheck;
+			Game.Window.MouseMoved += MouseEnteredCheck;
+
+			// If the name is anonymous, replace it with something at least a little more helpful
+			FixName ();
+		}
+
+		/// <summary>
+		/// Run when this object is removed from its manager. Use this to clean up events or your actor will crash if it needs to access the Game property (this is null when removed)
+		/// </summary>
+		public virtual void OnRemoved()
+		{
+			// Remove hover events
+			Game.Window.MouseButtonReleased -= ClickCheck;
+			Game.Window.MouseMoved -= MouseEnteredCheck;
 		}
 
 		/// <summary>
@@ -186,8 +204,6 @@ namespace GETIMFISP
 		/// <param name="delta">time since last frame</param>
 		public virtual void Update(FGameTime delta)
 		{
-			FixName ();
-
 			if (doBuiltInMotion)
 				DoMotion (delta);
 

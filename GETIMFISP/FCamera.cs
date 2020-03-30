@@ -61,14 +61,21 @@ namespace GETIMFISP
 		/// <summary>
 		/// Create the camera
 		/// </summary>
-		/// <param name="game">The FGame to derive the window size from</param>
-		public FCamera(FGame game)
+		public FCamera()
 		{
 			rawPosition = new Vector2f ();
 			targetPosition = rawPosition;
 			rotation = 0f;
-			windowSize = game.Window.Size;
+			windowSize = new Vector2u();
 			zoom = 1f;
+		}
+
+		/// <summary>
+		/// Only call after the window is created. Split between the constructor and this function so actors can position the camera pre-gameloop. This registers the Resized event.
+		/// </summary>
+		public void Initialize(FGame game)
+		{
+			windowSize = game.Window.Size;
 
 			game.Window.Resized += (sender, e) => { windowSize = new Vector2u (e.Width, e.Height); };
 		}
@@ -105,6 +112,15 @@ namespace GETIMFISP
 		public void Target(Vector2f position)
 		{
 			targetPosition = position;
+		}
+
+		/// <summary>
+		/// Target an actor.
+		/// </summary>
+		/// <param name="actor"></param>
+		public void Target(FActor actor)
+		{
+			targetPosition = actor.Graphics.Position;
 		}
 
 		/// <summary>
