@@ -8,14 +8,16 @@ namespace GETIMFISP
 	/// <summary>
 	/// A class to distribute Update() and Draw() calls amongst children FActors, and to make sure they're drawn in the right order
 	/// </summary>
-	public class FActorManager
+	public class FActorManager : FActor
 	{
 		// TODO: Multiple Actor Managers?
 
 		/// <summary>
 		/// The Game this is a child of
+		/// 
+		/// Can't be Game because that refers to whatever this is parented to
 		/// </summary>
-		public FGame Game;
+		public FGame MyGame;
 
 		Dictionary<int, FActor> actors; // internal actor holder (id -> actor)
 		List<FActor> sortedActors; // The actors in order
@@ -23,15 +25,19 @@ namespace GETIMFISP
 		int nextId; // the next id to be given out
 
 		/// <summary>
-		/// Create the FActorManager, passing the FGame it's a child of
+		/// Create a top level FActorManager, passing the FGame it's a child of.
 		/// </summary>
 		/// <param name="game"></param>
 		public FActorManager(FGame game)
 		{
-			Game = game;
+			MyGame = game;
 			actors = new Dictionary<int, FActor> ();
 			sortedActors = new List<FActor> ();
 			removalQueue = new List<int> ();
+
+#if DEBUG
+			Add (FDebugConsole.Instance);
+#endif
 
 			SortByDepth ();
 		}
@@ -200,8 +206,10 @@ namespace GETIMFISP
 		/// Update all children actors
 		/// </summary>
 		/// <param name="delta">the time since the last frame</param>
-		public void Update(FGameTime delta)
+		public override void Update(FGameTime delta)
 		{
+			base.Update (delta);
+
 			foreach (FActor actor in sortedActors)
 			{
 				actor.Update (delta);
@@ -220,11 +228,28 @@ namespace GETIMFISP
 		/// </summary>
 		/// <param name="target">the target surface to draw to</param>
 		/// <param name="states">the current renderer state</param>
-		public void Draw(RenderTarget target, RenderStates states)
+		public override void Draw(RenderTarget target, RenderStates states)
 		{
+			base.Draw (target, states);
+
 			foreach (FActor actor in sortedActors)
 			{
 				actor.Draw (target, states);
+			}
+		}
+
+		/// <summary>
+		/// Draw the GUI all children actors
+		/// </summary>
+		/// <param name="target">the target surface to draw to</param>
+		/// <param name="states">the current renderer state</param>
+		public override void DrawGUI(RenderTarget target, RenderStates states)
+		{
+			base.DrawGUI (target, states);
+
+			foreach (FActor actor in sortedActors)
+			{
+				actor.DrawGUI (target, states);
 			}
 		}
 	}

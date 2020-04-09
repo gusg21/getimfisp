@@ -24,6 +24,8 @@ namespace SFMLGame
 			// Start the game
 			game.Run ();
 
+			FDebug.WriteLogFile ();
+
 			// Keeps the console window open after you close the game.
 			Console.ReadLine ();
 		}
@@ -52,6 +54,8 @@ namespace SFMLGame
 			
 			// Move the camera to focus on this object
 			Game.Camera.Target (Graphics.Position);
+
+			DebugBBox = true;
 		}
 
 		public override void OnRemoved()
@@ -65,7 +69,7 @@ namespace SFMLGame
 		{
 			if (e.Code == Keyboard.Key.R)
 			{
-				Game.ChangeScene ("Data/test room 2.tmx");
+				FDebug.WriteLine ("Test");
 			}
 		}
 

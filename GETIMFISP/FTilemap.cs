@@ -14,6 +14,7 @@ namespace GETIMFISP
 		FTilesetManager tilesets;
 		int depth;
 		Color color;
+		bool visible;
 
 		/// <summary>
 		/// Create a tilemap
@@ -29,7 +30,7 @@ namespace GETIMFISP
 			this.tilesets = tilesets;
 			this.depth = depth;
 
-			Visible = layer.Visible;
+			visible = layer.Visible;
 			Name = "Tilemap";
 			color = new Color (255, 255, 255, (byte) (layer.Opacity * 255));
 		}
@@ -64,7 +65,7 @@ namespace GETIMFISP
 		{
 			base.Draw (target, states);
 			
-			if (!Visible)
+			if (!visible)
 				return;
 			
 			foreach (TmxLayerTile tile in layer.Tiles)

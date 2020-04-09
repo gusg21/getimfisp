@@ -31,7 +31,7 @@ namespace GETIMFISP
 		/// <summary>
 		/// The Game that the Manager is a child of (same as Manager.Game)
 		/// </summary>
-		public FGame Game { get { return Manager.Game; } }
+		public FGame Game { get { return Manager.MyGame; } }
 
 		// The render order
 		private int depth = 0;
@@ -61,10 +61,6 @@ namespace GETIMFISP
 		/// Use the built-in renderer?
 		/// </summary>
 		public bool UseBuiltinRenderer { protected set; get; } = true;
-		/// <summary>
-		/// Is the sprite visible?
-		/// </summary>
-		public bool Visible { get { return Graphics.Visible; } set { Graphics.Visible = value; } }
 
 		/// <summary>
 		/// The collision (bounding) box of the actor
@@ -75,6 +71,10 @@ namespace GETIMFISP
 		/// NOTE: position is still set automatically, but you can edit width + height.
 		/// </summary>
 		public bool CalcBBoxOffGraphics = true;
+		/// <summary>
+		/// Draw the bbox and position for debuggin'?
+		/// </summary>
+		public bool DebugBBox = false;
 
 		/// <summary>
 		/// The Tiled object this was created from.
@@ -136,12 +136,12 @@ namespace GETIMFISP
 			{
 				if (CalcBBoxOffGraphics)
 				{
-					BBox = new FloatRect (Graphics.Position, Graphics.Texture.Size.To2f().Mul(Graphics.Scale));
+					BBox = new FloatRect (Graphics.Position - (Graphics.Origin.Mul(Graphics.Scale)), Graphics.Texture.Size.To2f().Mul(Graphics.Scale));
 				}
 				else
 				{
-					BBox.Left = Graphics.Position.X;
-					BBox.Top = Graphics.Position.Y;
+					BBox.Left = Graphics.Position.X - (Graphics.Origin.X * Graphics.Scale.X);
+					BBox.Top = Graphics.Position.Y - (Graphics.Origin.Y * Graphics.Scale.Y);
 				}
 			}
 			else
@@ -220,10 +220,26 @@ namespace GETIMFISP
 		/// <param name="states">the renderer state</param>
 		public virtual void Draw(RenderTarget target, RenderStates states)
 		{
-			if (UseBuiltinRenderer && Visible)
+			if (UseBuiltinRenderer)
 			{
 				target.Draw (Graphics, states);
 			}
+
+			if (DebugBBox)
+			{
+				FDebug.Primitive (BBox);
+				FDebug.Primitive (Graphics.Position);
+			}
+		}
+
+		/// <summary>
+		/// Draw over top of the world, with screen-space coordinates (no camera)
+		/// </summary>
+		/// <param name="target">the surface to draw to</param>
+		/// <param name="states">the renderer state</param>
+		public virtual void DrawGUI(RenderTarget target, RenderStates states)
+		{
+
 		}
 	}
 }

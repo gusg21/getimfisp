@@ -30,6 +30,8 @@ namespace GETIMFISP
 		/// The object that keeps track of time related things
 		/// </summary>
 		public FGameTime GameTime;
+
+		// UTILITIES
 		/// <summary>
 		/// Used to create a tween
 		/// </summary>
@@ -56,7 +58,6 @@ namespace GETIMFISP
 		/// <summary>
 		/// Create the Game from a Map and window settings
 		/// </summary>
-		/// <param name="mapPath">the path to the Tiled map</param>
 		/// <param name="settings">the window settings to use</param>
 		public FGame(FWindowSettings settings)
 		{
@@ -74,16 +75,20 @@ namespace GETIMFISP
 
 		void Construct()
 		{
+			// Data
 			actorTypes = new Dictionary<string, Type> ();
 			ActorManager = new FActorManager (this);
+
+			// Utilities
 			Tweener = new Tweener ();
 			Camera = new FCamera ();
 
+			// Rendering
 			// Window (and camera) creation
 			Window = new RenderWindow (WindowSettings.WindowMode, WindowSettings.Title, WindowSettings.Style);
 
 			// Window close event
-			Window.Closed += (sender, e) => { Console.WriteLine ("Closing window..."); ((Window) sender).Close (); };
+			Window.Closed += (sender, e) => { FDebug.WriteLine ("Closing window..."); ((Window) sender).Close (); };
 		}
 
 		/// <summary>
@@ -92,7 +97,7 @@ namespace GETIMFISP
 		/// <typeparam name="T">The type to register</typeparam>
 		public void AddActorType<T>() where T : FActor
 		{
-			Console.WriteLine ("Registered script: " + typeof (T).Name);
+			FDebug.WriteLine ("Registered script: " + typeof (T).Name);
 			actorTypes.Add (typeof (T).Name, typeof (T));
 		}
 
@@ -103,7 +108,7 @@ namespace GETIMFISP
 		/// <param name="typeName">The name to use</param>
 		public void AddActorType<T>(string typeName) where T : FActor
 		{
-			Console.WriteLine ($"Registered script with overridden name: {typeName}");
+			FDebug.WriteLine ($"Registered script with overridden name: {typeName}");
 			actorTypes.Add (typeName, typeof (T));
 		}
 
@@ -128,24 +133,26 @@ namespace GETIMFISP
 
 		void LoadActors()
 		{
+			/** TODO: Load object layers into different actor managers */
+
 			int successCount = 0;
 
 			// Loop through object groups in map
 			foreach (TmxObjectGroup objGroup in map.ObjectGroups)
 			{
-				Console.WriteLine ("GROUP: " + objGroup.Name);
+				FDebug.WriteLine ("GROUP: " + objGroup.Name);
 				// Loop through objects in the group
 				foreach (TmxObject obj in objGroup.Objects)
 				{
-					Console.WriteLine ("  OBJECT: Name: [" + obj.Name + "] Type: [" + obj.Type + "] ObjType: [" + obj.ObjectType + "]");
+					FDebug.WriteLine ("  OBJECT: Name: [" + obj.Name + "] Type: [" + obj.Type + "] ObjType: [" + obj.ObjectType + "]");
 					if (obj.Type == "")
 					{
-						Console.WriteLine ("    W: No type provided.");
+						FDebug.WriteLine ("No type provided.", logLevel: FLogLevel.WARNING);
 					}
 
 					if (!actorTypes.ContainsKey(obj.Type) && obj.Type != "") // Is the type registered?
 					{
-						Console.WriteLine ($"    E: Unknown type: {obj.Type}");
+						FDebug.WriteLine ($"Unknown type: {obj.Type}", logLevel : FLogLevel.ERROR);
 						continue;
 					}
 
@@ -159,11 +166,12 @@ namespace GETIMFISP
 					// Custom functionality based on source tiled type
 					switch (obj.ObjectType)
 					{
+						// A piece of the tileset that is turned into an actor
 						case TmxObjectType.Tile:
-							// Loading tile image
 							TmxTileset tileset = map.GetTilesetWithGid (obj.Tile.Gid);
 							actor.Graphics = new FSprite(tileset.GetTileTex (obj.Tile.Gid));
 							break;
+						
 						
 						case TmxObjectType.Basic:
 							actor.BBox.Width = (float) obj.Width;
@@ -176,10 +184,10 @@ namespace GETIMFISP
 
 					// Universal edits
 					actor.Name = obj.Name;
-					actor.Visible = obj.Visible;
+					actor.Graphics.Visible = obj.Visible;
 					actor.SrcObject = obj;
 					actor.Graphics.Position = new Vector2f ((float) actor.SrcObject.X, (float) actor.SrcObject.Y);
-					Console.WriteLine ($"{actor.Graphics.Position}");
+					FDebug.WriteLine ($"{actor.Graphics.Position}");
 
 					// Add it to the manager
 					ActorManager.Add (actor);
@@ -190,14 +198,14 @@ namespace GETIMFISP
 					// Depth is setup in OnGraphicsReady(), so we account for it here
 					ActorManager.SortByDepth ();
 
-					Console.WriteLine ("    Loaded successfully!");
+					FDebug.WriteLine ("    Loaded successfully!");
 
 					// keep track of the object count we actually loaded
 					successCount++;
 				}
 			}
 
-			Console.WriteLine ($"=== Loaded {successCount} object(s) successfully. ===");
+			FDebug.WriteLine ($"=== Loaded {successCount} object(s) successfully. ===");
 
 			ActorManager.SortByDepth ();
 		}
@@ -207,7 +215,7 @@ namespace GETIMFISP
 			int depth = 0;
 			foreach (TmxLayer layer in map.Layers)
 			{
-				Console.WriteLine ($"Adding Tilemap for layer: {layer.Name}");
+				FDebug.WriteLine ($"Adding Tilemap for layer: {layer.Name}");
 
 				FTilemap mapActor = new FTilemap (map, layer, new FTilesetManager (map.Tilesets), -1 - depth);
 				ActorManager.Add (mapActor);
@@ -240,9 +248,15 @@ namespace GETIMFISP
 				Window.DispatchEvents ();
 
 				// Rendering
+				// World-space draw
 				Window.Clear (ClearColor);
 				Window.SetView (Camera.GetView());
 				ActorManager.Draw (Window, states);
+				FDebug.DrawOverlay (Window, states);
+
+				// Screen-space draw
+				Window.SetView (new View ((Window.Size / 2).To2f(), Window.Size.To2f()));
+				ActorManager.DrawGUI (Window, states);
 				
 				// Update the screen
 				Window.Display ();

@@ -17,7 +17,7 @@ namespace GETIMFISP.Extensions
 
 		public static Texture GetTileTex(this TmxTileset tileset, int gid)
 		{
-			Console.WriteLine (gid);
+			FDebug.WriteLine (gid);
 			int localId = gid - tileset.FirstGid;
 			int x = localId % (int) tileset.Columns;
 			int y = (int) (localId / (float) tileset.Columns);

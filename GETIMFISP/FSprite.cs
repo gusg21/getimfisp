@@ -79,7 +79,7 @@ namespace GETIMFISP
 		public FSprite()
 		{
 			animations = new Dictionary<string, FAnimation> ();
-			FromTex (new Texture ("Internal Data/null.png"));
+			FromTex (new Texture ("Resources/null.png"));
 		}
 		
 		void FromTex(Texture tex)
@@ -104,6 +104,15 @@ namespace GETIMFISP
 		public void CenterOrigin()
 		{
 			Origin = (Texture.Size.To2f () / 2f);
+		}
+
+		/// <summary>
+		/// Get the top left coordinate of the sprite. Accounts for scale
+		/// </summary>
+		/// <returns></returns>
+		public Vector2f CalcTopLeft()
+		{
+			return Position - (Origin.Mul(Scale));
 		}
 
 		/// <summary>

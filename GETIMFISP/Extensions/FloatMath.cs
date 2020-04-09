@@ -30,7 +30,7 @@ namespace GETIMFISP.Extensions
 				if (er > max)
 					max = er;
 			}
-			Console.WriteLine ("Max fast sin error is: " + max / 2);
+			FDebug.WriteLine ("Max fast sin error is: " + max / 2);
 		}
 
 		/// <summary>
