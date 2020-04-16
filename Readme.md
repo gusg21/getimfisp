@@ -1,4 +1,4 @@
-![GETIMFISP](/Graphics/G.png)
+![GETIMFISP](/Graphics/logo.png)
 
 ---
 
