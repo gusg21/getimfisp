@@ -88,6 +88,7 @@ namespace GETIMFISP
 		private void ClickCheck(object sender, MouseButtonEventArgs e)
 		{
 			Vector2f converted = Game.Window.MapPixelToCoords (new Vector2i (e.X, e.Y));
+			//FDebug.WriteLine ($"Click {converted} check in BBox: {BBox} ({Name})", 4);
 			if (BBox.Contains(converted))
 			{
 				Clicked?.Invoke (this, e);

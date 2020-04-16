@@ -87,6 +87,9 @@
     <Content Include="Data\images\object3.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Data\sounds\jet.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\main.tmx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

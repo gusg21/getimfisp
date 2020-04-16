@@ -33,10 +33,6 @@ namespace GETIMFISP
 
 		// UTILITIES
 		/// <summary>
-		/// Used to create a tween
-		/// </summary>
-		public Tweener Tweener;
-		/// <summary>
 		/// The current camera
 		/// </summary>
 		public FCamera Camera;
@@ -80,7 +76,6 @@ namespace GETIMFISP
 			ActorManager = new FActorManager (this);
 
 			// Utilities
-			Tweener = new Tweener ();
 			Camera = new FCamera ();
 
 			// Rendering
@@ -187,16 +182,9 @@ namespace GETIMFISP
 					actor.Graphics.Visible = obj.Visible;
 					actor.SrcObject = obj;
 					actor.Graphics.Position = new Vector2f ((float) actor.SrcObject.X, (float) actor.SrcObject.Y);
-					FDebug.WriteLine ($"{actor.Graphics.Position}");
 
 					// Add it to the manager
 					ActorManager.Add (actor);
-
-					// everything's ready; the object can now set itself up
-					actor.OnGraphicsReady ();
-
-					// Depth is setup in OnGraphicsReady(), so we account for it here
-					ActorManager.SortByDepth ();
 
 					FDebug.WriteLine ("    Loaded successfully!");
 
@@ -206,6 +194,8 @@ namespace GETIMFISP
 			}
 
 			FDebug.WriteLine ($"=== Loaded {successCount} object(s) successfully. ===");
+
+			ActorManager.OnGraphicsReady ();
 
 			ActorManager.SortByDepth ();
 		}
@@ -241,8 +231,8 @@ namespace GETIMFISP
 			{
 				// Global data updates
 				ActorManager.Update (GameTime);
-				Tweener.Update (GameTime);
 				Camera.Update (GameTime);
+				Tweener.Instance.Update (GameTime);
 
 				// Window events update
 				Window.DispatchEvents ();
@@ -257,6 +247,7 @@ namespace GETIMFISP
 				// Screen-space draw
 				Window.SetView (new View ((Window.Size / 2).To2f(), Window.Size.To2f()));
 				ActorManager.DrawGUI (Window, states);
+				Window.SetView (Camera.GetView ());
 				
 				// Update the screen
 				Window.Display ();

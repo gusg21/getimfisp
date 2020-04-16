@@ -37,6 +37,7 @@ namespace GETIMFISP
 
 #if DEBUG
 			Add (FDebugConsole.Instance);
+			FDebugConsole.Instance.Manager = this; // Will happen multiple times, but the console doesn't care which manager it has
 #endif
 
 			SortByDepth ();
@@ -199,6 +200,18 @@ namespace GETIMFISP
 				{
 					Remove (actor);
 				}
+			}
+		}
+
+		/// <summary>
+		/// Tell all children actors they can set up events and initialize.
+		/// </summary>
+		public override void OnGraphicsReady()
+		{
+			foreach (FActor actor in sortedActors)
+			{
+				FDebug.WriteLine ($"{actor.Name}");
+				actor.OnGraphicsReady ();
 			}
 		}
 

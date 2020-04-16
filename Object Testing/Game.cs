@@ -1,6 +1,7 @@
 ﻿using GETIMFISP;
 using Glide;
 using IronWren;
+using SFML.Audio;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -37,6 +38,7 @@ namespace SFMLGame
 	public class Player : FActor
 	{
 		Tween tween;
+		Sound jetSound;
 
 		public override void OnGraphicsReady()
 		{
@@ -51,11 +53,35 @@ namespace SFMLGame
 			// Register some test events
 			Clicked += Player_Clicked;
 			Game.Window.KeyPressed += Window_KeyPressed;
+			FDebugConsole.Instance.OnText += Instance_OnText;
 			
 			// Move the camera to focus on this object
 			Game.Camera.Target (Graphics.Position);
 
+			jetSound = new Sound (new SoundBuffer ("Data/sounds/jet.wav"));
+
 			DebugBBox = true;
+		}
+
+		private void Instance_OnText(object sender, DebugConsoleEventArgs e)
+		{
+			if (e.Command.ToLower() == "/rotate")
+			{
+				int degrees = int.Parse (e.Args [0]);
+				FDebug.WriteLine ($"Rotating {degrees} degrees...");
+				Graphics.Rotation += degrees;
+			}
+			if (e.Command.ToLower() == "/zoom")
+			{
+				float zoom = float.Parse (e.Args [0]);
+				FDebug.WriteLine ($"Setting zoom to {zoom}...");
+				Game.Camera.zoom = zoom;
+			}
+			if (e.Command.ToLower() == "/sound")
+			{
+				jetSound.Position = new Vector3f (float.Parse(e.Args[0]), float.Parse(e.Args[1]), float.Parse(e.Args[2]));
+				jetSound.Play ();
+			}
 		}
 
 		public override void OnRemoved()
@@ -75,10 +101,12 @@ namespace SFMLGame
 
 		private void Player_Clicked(object sender, MouseButtonEventArgs e)
 		{
+			FDebug.WriteLine ("Player Clicked", 3);
+
 			if (tween != null && tween.Completion != 0 && tween.Completion != 1)
 				return;
 
-			tween = Game.Tweener.Tween (Graphics, new { X = 20, Rotation = Graphics.Rotation + 45 }, 1);
+			tween = Tweener.Instance.Tween (Graphics, new { X = 20, Rotation = Graphics.Rotation + 45 }, 1);
 			tween.Ease (Ease.QuadInOut);
 			tween.Completed += Tween_Completed;
 		}

@@ -11,7 +11,14 @@ using Glide;
 
 namespace Glide
 {
-	public class Tweener : Tween.TweenerImpl {};
+	public class Tweener : Tween.TweenerImpl
+	{
+		private static Tweener instance;
+		/// <summary>
+		/// Singleton for the Tweener
+		/// </summary>
+		public static Tweener Instance { get { if (instance == null) { instance = new Tweener (); } return instance; } }
+	}
 	
 	public partial class Tween
 	{
